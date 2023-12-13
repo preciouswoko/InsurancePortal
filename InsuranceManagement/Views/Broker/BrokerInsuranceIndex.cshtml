@@ -1,0 +1,140 @@
+﻿@model IEnumerable<InsuranceCore.Models.BrokerInsuranceType>
+
+@{
+    ViewData["Title"] = "BrokerInsuranceIndex";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Broker Insurance List</h2>
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}
+<button type="button" class="btn btn-primary" style="background-color: #25237a;">
+    <a asp-action="CreateBrokerInsuranceType" style="color: white; text-decoration: none;">Create New</a>
+</button>
+<input type="text" id="searchTerm" placeholder="Search by name...">
+<table class="table">
+    <thead>
+        <tr>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>*@
+
+
+            <th>
+                @Html.DisplayNameFor(model => model.Broker)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InsuranceType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>*@
+
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Broker.BrokerName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InsuranceType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary" style="background-color: #25237a; display: inline-block;">
+                        <a asp-action="EditBrokerInsuranceType" asp-route-id="@item.Id" style="color: white; text-decoration: none;"><i class="zmdi zmdi-edit"></i></a>
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-danger" style="background-color: #f00; border-color: #f00; display: inline-block;">
+                        <a asp-action="DeleteBrokerInsuranceType" asp-route-id="@item.Id" style="color: white; text-decoration: none;"><i class="zmdi zmdi-delete"></i></a>
+                    </button>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/assets/bundles/libscripts.bundle.js"></script>
+@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script>
+
+<script>
+    const searchInput = document.getElementById('searchTerm');
+
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === "Enter") {
+            searchByName();
+        }
+    });
+
+    function searchByName() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const accountNameCell = row.getAttribute('data-account-name').toLowerCase();
+
+            if (!accountNameCell.includes(searchTerm)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+
+        // Show "No results" if needed
+        showNoResultsMessage();
+    }
+
+    function showNoResultsMessage() {
+        const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
+
+        if (visibleRows.length === 0) {
+            // Show no results message or take appropriate action
+        } else {
+            // Hide no results message or take appropriate action
+        }
+    }
+
+    // Initially filter on page load
+    searchByName();
+</script>

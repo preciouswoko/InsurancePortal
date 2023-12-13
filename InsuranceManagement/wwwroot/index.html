@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="Insurance Management">
+    <title>Insurance Management Dashboard</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="~/assets/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/main.css">
+    <link rel="stylesheet" href="~/assets/css/authentication.css">
+    <link rel="stylesheet" href="~/assets/css/color_skins.css">
+</head>
+<body class="theme-cyan authentication sidebar-collapse">
+    <div style="display:none;" class="page-loader-wrapper">
+        <div class="loader">
+            <div class="m-t-30">
+                <div class="mb-4 mb-md-5 text-center">
+                    <a class="d-block auth-logo">
+                        <img src="~/assets/images/Keystone_logo.png" alt="Keystone Logo" height="75" width="75">
+                    </a>
+                </div>
+            </div>
+            <p>Please wait...</p>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-transparent">
+        <div class="container">
+            <div class="navbar-translate n_logo">
+                <a class="navbar-brand" href="#" title="Home"></a>
+                <button class="navbar-toggler" type="button">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="page-header-image" style="background-image:url(assets/images/KeyStoneBank.jpg)"></div>
+        <div class="container">
+            <div class="col-md-12 content-center">
+                <div class="card-plain">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 mb-md-5 text-center">
+                            <a class="d-block auth-logo">
+                                <img src="~/assets/images/Keystone_logo.png" alt="Keystone Logo" height="75" width="75">
+                            </a>
+                        </div>
+                        <div class="auth-content my-auto">
+                            <div class="text-center">
+                                <h5 class="mb-0"><strong>Welcome Back!</strong></h5>
+                            </div>
+
+                            <form asp-controller="Auth" asp-action="Login" method="post">
+                                <div class="mb-3">
+                                    <div class="form-group">
+                                        <label for="Username">Username:</label>
+                                        <input type="text" id="Username" name="Username" class="form-control" required>
+                                        <span class="text-danger" id="Username-error"></span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-group">
+                                        <label for="Password">Password:</label>
+                                        <input type="password" id="Password" name="Password" class="form-control" required>
+                                        <span class="text-danger" id="Password-error"></span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-group">
+                                        <label for="AccessToken">Access Token:</label>
+                                        <input type="text" id="AccessToken" name="AccessToken" class="form-control" required>
+                                        <span class="text-danger" id="AccessToken-error"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button class="btn w-100 waves-effect waves-light" style="background-color:#25237a" type="submit">Log In</button>
+                                </div>
+
+                                <!--@{
+    if (ViewBag.Message != null)
+    {
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" id="dynamic-alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="d-flex align-items-center">
+            <i class="fa fa-exclamation-circle me-2"></i>
+            <div>
+                <h5 class="alert-heading">Warning!</h5>
+                <p id="alert-message">@ViewBag.Message</p>
+            </div>
+        </div>
+    </div>
+    }
+    }-->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/assets/bundles/libscripts.bundle.js"></script>
+    <script src="~/assets/bundles/vendorscripts.bundle.js"></script>
+    <script src="~/assets/js/sweetalert.js"></script>
+</body>
+</html>

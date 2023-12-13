@@ -1,0 +1,45 @@
+﻿@model InsuranceCore.Models.InsuranceType
+
+@{
+    ViewData["Title"] = "DetailsInsurance";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+@*<h2>DetailsInsurance</h2>*@
+
+<div>
+    <h4>InsuranceType</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+      
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+       
+        <dt>
+            @Html.DisplayNameFor(model => model.SubInsuranceTypes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SubInsuranceTypes)
+        </dd>
+    </dl>
+</div>
+<div>
+    <button type="button" class="btn btn-primary" style="background-color: #25237a;">
+        <a asp-action="EditInsurance" asp-route-id="@Model.Id" style="color: white; text-decoration: none;">Edit</a>
+    </button>
+    |
+
+  
+    @*<a asp-action="EditInsurance" asp-route-id="@Model.Id">Edit</a> |*@
+    <a asp-action="Index">Back to List</a>
+</div>

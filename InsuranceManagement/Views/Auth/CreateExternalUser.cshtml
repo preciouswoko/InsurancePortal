@@ -1,0 +1,47 @@
+﻿@model InsuranceCore.DTO.CreateCustomer
+
+@{
+    ViewData["Title"] = "Create External User";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Create External User</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateExternalUser" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            <label asp-for="EmailAddress">Email Address:</label>
+                            <input asp-for="EmailAddress" class="form-control" />
+                            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Surname">Surname:</label>
+                            <input asp-for="Surname" class="form-control" />
+                            <span asp-validation-for="Surname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Firstname">Firstname:</label>
+                            <input asp-for="Firstname" class="form-control" />
+                            <span asp-validation-for="Firstname" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Companyattach" class="control-label"></label>
+                            <select asp-for="Companyattach" class="form-control" asp-items="ViewBag.BrokerId "></select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,179 @@
+﻿@model InsuranceCore.Models.Request
+
+@{
+    ViewData["Title"] = "CreateRequest";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+
+}
+
+<h2 style="text-align: center;">Insurance Request</h2>
+@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")">
+        @TempData["ResultMessage"]
+    </div>
+}
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="CreateRequest">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+
+                    <div class="form-group">
+
+                        <label asp-for="AccountNo" class="control-label"></label>
+
+                        <input id="AccountNumber" asp-for="AccountNo" class="form-control"
+                               onblur="fetchAccountDetails()"
+                               required
+                               type="number"
+                               pattern="\d{10}" maxlength="10"
+                               title="Account number must be 10 digits" />
+
+                        <span asp-validation-for="AccountNo" class="text-danger"></span>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="AccountName" class="control-label"></label>
+                            <input asp-for="AccountName" class="form-control" readonly data-val="true" data-val-required="The Account Name field is required." />
+                            <span asp-validation-for="AccountName" class="text-danger"></span>
+                        </strong>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="CustomerName" class="control-label"></label>
+                            <input asp-for="CustomerName" class="form-control" readonly data-val="true" data-val-required="The Customer Name field is required." />
+                            <span asp-validation-for="CustomerName" class="text-danger"></span>
+                        </strong>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="CustomerID" class="control-label"></label>
+                            <input asp-for="CustomerID" class="form-control" readonly data-val="true" data-val-required="The Customer ID field is required." />
+                            <span asp-validation-for="CustomerID" class="text-danger"></span>
+                        </strong>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="CustomerEmail" class="control-label"></label>
+                            <input asp-for="CustomerEmail" class="form-control" readonly data-val="true" data-val-required="The Customer Email field is required." />
+                            <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                        </strong>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="CollateralValue" class="control-label"></label>
+                            <input asp-for="CollateralValue" class="form-control" required step="0.01" />
+                            <span asp-validation-for="CollateralValue" class="text-danger"></span>
+                        </strong>
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="Premium" class="control-label"></label>
+                            <input asp-for="Premium" class="form-control" required step="0.01" />
+                            <span asp-validation-for="Premium" class="text-danger"></span>
+                        </strong>
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="BrokerID" class="control-label"></label>
+                            <select asp-for="BrokerID" class="form-control" asp-items="ViewBag.BrokerId">
+                                <option value="">Nothing Selected</option>
+                            </select>
+                        </strong>
+
+                    </div>
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="InsuranceTypeId" class="control-label"></label>
+                            <select asp-for="InsuranceTypeId" class="form-control" asp-items="ViewBag.InsuranceTypeId">
+                                <option value="">Nothing Selected</option>
+                            </select>
+                        </strong>
+
+                    </div>
+
+                    <div class="form-group">
+                        <strong>
+                            <label asp-for="InsuranceSubTypeID" class="control-label"></label>
+                            <select asp-for="InsuranceSubTypeID" class="form-control" asp-items="ViewBag.InsuranceSubTypeId">
+                                <option value="">Nothing Selected</option>
+                            </select>
+                        </strong>
+                    </div>
+
+
+
+                </div>
+                <div class="form-group">
+                    <div id="slider"></div>
+                </div>
+                <div>
+                    <a asp-controller="Insurance" asp-action="CreateRequest" class="btn btn-success">Back</a>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-default" style="background-color: #25237a;" />
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+@*<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>*@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@*<script src="https://cdn.jsdelivr.net/npm/autonumeric@4.1.0"></script>*@
+
+<script>
+  function fetchAccountDetails() {
+    console.log("fetchAccountDetails called");
+
+    var accountNumber = $('#AccountNumber').val();
+      console.log("accountNumber: " + accountNumber);
+    $.ajax({
+        url: '@Url.Action("FetchAccountDetails", "Insurance")',
+        type: 'POST',
+        data: { accountNumber: accountNumber },
+        success: function (response) {
+            console.log("AJAX success");
+            $('#AccountName').val(response.accountName);
+            $('#CustomerName').val(response.customerName);
+            $('#CustomerID').val(response.t24CustomerID);
+            $('#CustomerEmail').val(response.customerEmail);
+        }
+    });
+
+  }
+
+    const input = document.getElementById('AccountNumber');
+
+    input.addEventListener('input', () => {
+        if (input.value.length > 10) {
+            input.setCustomValidity('Number must be 10 digits or less');
+        }
+    });
+
+
+    $(document).ready(function () {
+        var slider = document.getElementById('slider');
+        noUiSlider.create(slider, {
+            // Your slider configuration
+            start: [0, 100],  // Example start values
+            range: {
+                'min': 0,
+                'max': 100
+            }
+        });
+    });
+</script>

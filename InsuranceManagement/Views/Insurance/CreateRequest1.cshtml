@@ -1,0 +1,350 @@
+﻿@model InsuranceManagement.ViewModels.InsuranceRequestViewModel
+@{
+    ViewData["Title"] = "CreateRequest1";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+<h2 style="text-align: center;">Insurance Request</h2>
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}
+
+<form asp-action="CreateRequest1" method="post">
+
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="form-group">
+
+                <label asp-for="AccountNumber" class="control-label"></label>
+
+                <input id="AccountNumber" asp-for="AccountNumber" class="form-control"
+                       onblur="fetchAccountDetails()"
+                       required
+                       type="number"
+                       pattern="\d{10}" maxlength="10"
+                       title="Account number must be 10 digits" />
+
+                <span asp-validation-for="AccountNumber" class="text-danger"></span>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="AccountName" class="control-label"></label>
+                    <input asp-for="AccountName" class="form-control" readonly data-val="true" data-val-required="The Account Name field is required." />
+                    <span asp-validation-for="AccountName" class="text-danger"></span>
+                </strong>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="CustomerName" class="control-label"></label>
+                    <input asp-for="CustomerName" class="form-control" readonly data-val="true" data-val-required="The Customer Name field is required." />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </strong>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="CustomerId" class="control-label"></label>
+                    <input asp-for="CustomerId" class="form-control" readonly data-val="true" data-val-required="The Customer ID field is required." />
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </strong>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="CustomerEmail" class="control-label"></label>
+                    <input asp-for="CustomerEmail" class="form-control" readonly data-val="true" data-val-required="The Customer Email field is required." />
+                    <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                </strong>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="CollateralValue" class="control-label"></label>
+                    <input asp-for="CollateralValue" class="form-control" required id="collateralInput" />
+                    <span asp-validation-for="CollateralValue" class="text-danger"></span>
+                </strong>
+
+            </div>
+            <div class="form-group">
+                <strong>
+                    <label asp-for="EstimatedPremium" class="control-label"></label>
+                    <input asp-for="EstimatedPremium" class="form-control" required id="premiumInput" />
+                    <span asp-validation-for="EstimatedPremium" class="text-danger"></span>
+                </strong>
+
+            </div>
+
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="BrokerId"></label>
+                <select asp-for="SelectedBrokerId" asp-items="Model.Brokers" class="form-control" id="BrokerId" name="brokerId" required>
+                    <option>-- Select Broker --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="InsuranceTypeId"></label>
+                <select asp-for="selectedInsuranceTypeId" asp-items="Model.InsuranceTypes" class="form-control" id="InsuranceTypeId"name="InsuranceTypeId" required>
+                    <option>-- Select  Insurance Type --</option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+                <label asp-for="InsuranceSubTypeId"></label>
+                <select asp-for="InsuranceSubTypeId" asp-items="Model.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId"required>
+                    <option>-- Insurance Select Sub Type --</option>
+                </select>
+
+            </div>
+            <div id="branchcodeDiv" class="form-group">
+                <strong>
+                    <label asp-for="Branchcode" class="control-label"></label>
+                    <input asp-for="Branchcode" class="form-control" required readonly />
+                    <span asp-validation-for="Branchcode" class="text-danger"></span>
+                </strong>
+
+            </div>
+
+
+
+
+        </div>
+        <div>
+            <a asp-controller="Insurance" asp-action="CreateRequest1" class="btn btn-success">Back</a>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+
+@*<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>*@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nouislider@14.6.0/distribute/nouislider.min.js"></script>
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script> <!-- slimscroll, waves Scripts Plugin Js -->
+@*<script src="~/assets/lib/jquery-validation/dist/jquery.validate.min.js"></script>*@
+@*<script src="~/assets/js/pages/forms/advanced-form-elements.js"></script>*@
+@*<script src="~/assets/js/pages/forms/basic-form-elements.js"></script>*@
+
+
+
+<script>
+
+    function format(value) {
+        return value.toLocaleString('en-US'/*, { minimumFractionDigits: 2 }*/);
+    }
+
+    // Event listener for the input field
+    //const premiumInput = document.getElementById('premiumInput');
+    //premiumInput.addEventListener('input', function () {
+    //    const inputValue = parseFloat(this.value.replace(/[^0-9.]/g, ''));
+    //    if (!isNaN(inputValue)) {
+    //        this.value = format(inputValue);
+    //    }
+    //});
+    const premiumInput = document.getElementById('premiumInput');
+    premiumInput.oninput = function () {
+        var sanitizedInput = this.value.replace(/[^0-9.]/g, '');
+        if (sanitizedInput.charAt(0) === '.') {
+            sanitizedInput = '0' + sanitizedInput;
+        }
+        var decimalIndex = sanitizedInput.indexOf('.');
+        if (decimalIndex >= 0) {
+            sanitizedInput = sanitizedInput.slice(0, decimalIndex + 1) + sanitizedInput.slice(decimalIndex + 1).replace(/\./g, '').slice(0, 2);
+        }
+        var formattedInput = sanitizedInput.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.value = formattedInput;
+    };
+    //// Event listener for the input field
+    //const collateralInput = document.getElementById('collateralInput');
+    //collateralInput.addEventListener('input', function () {
+    //    const inputValue = parseFloat(this.value.replace(/[^0-9.]/g, ''));
+    //    if (!isNaN(inputValue)) {
+    //        this.value = format(inputValue);
+    //    }
+    //});
+    // Event listener for the input field
+    const collateralInput = document.getElementById('collateralInput');
+    collateralInput.oninput = function () {
+        var sanitizedInput = this.value.replace(/[^0-9.]/g, '');
+        if (sanitizedInput.charAt(0) === '.') {
+            sanitizedInput = '0' + sanitizedInput;
+        }
+        var decimalIndex = sanitizedInput.indexOf('.');
+        if (decimalIndex >= 0) {
+            sanitizedInput = sanitizedInput.slice(0, decimalIndex + 1) + sanitizedInput.slice(decimalIndex + 1).replace(/\./g, '').slice(0, 2);
+        }
+        var formattedInput = sanitizedInput.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.value = formattedInput;
+    };
+
+    $('#BrokerId').change(function () {
+        var selectedBrokerId = $(this).val();
+        console.log('Selected Broker ID: ' + selectedBrokerId);
+        console.log('Selected Broker ID 2: ' + BrokerId); // Check if this log appears
+        // Rest of your AJAX code
+    });
+     //Attach change event handlers to repopulate dropdowns
+
+    $('#BrokerId').change(function () {
+        var selectedBrokerId = $(this).val();
+        console.log('Selected Broker ID: ' + selectedBrokerId); // Log selected Broker ID
+        // Make an AJAX call to fetch and populate Insurance Types based on selected Broker
+        $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
+            $('#InsuranceTypeId').empty(); // Clear previous options
+            $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Insurance Type --' }));
+            $.each(data, function (index, item) {
+                $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Types loaded.'); // Log when Insurance Types are loaded
+            //window.location.reload();
+        });
+    });
+
+
+    @*function fetchBrokerId() {
+    console.log("fetchBrokerId called");
+
+    // Corrected the variable name from BrokerId to selectedBrokerId
+    var selectedBrokerId = $('#selectedBrokerId').val();
+    console.log("selectedBrokerId: " + selectedBrokerId);
+
+    $.ajax({
+        // Updated the URL to use proper quotes around the action and controller names
+        url: '@Url.Action("GetInsuranceTypes", "Insurance")',
+        type: 'GET',
+        data: { brokerId: selectedBrokerId },
+        success: function (data) {
+            console.log("AJAX success");
+            $('#InsuranceTypeId').empty(); // Clear previous options
+            $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Type --' }));
+            $.each(data, function (index, item) {
+                $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Types loaded.'); // Log when Insurance Types are loaded
+        },
+        error: function () {
+            console.log("AJAX error"); // Log if there's an error
+        }
+    });
+}*@
+
+    // Cascade sub types
+    $('#InsuranceTypeId').change(function () {
+        var selectedInsuranceTypeId = $(this).val();
+        console.log('Selected Insurance Type ID: ' + selectedInsuranceTypeId); // Log selected Insurance Type ID
+        // Make an AJAX call to fetch and populate Insurance Sub Types based on selected Insurance Type
+        $.get('/Insurance/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
+            $('#InsuranceSubTypeId').empty(); // Clear previous options
+            $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Insurance Sub Type --' }));
+            $.each(data, function (index, item) {
+                $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Sub Types loaded.'); // Log when Insurance Sub Types are loaded
+            //window.location.reload();
+        });
+    });
+
+    //$('#BrokerId').change(function () {
+    //    var selectedBrokerId = $(this).val();
+    //    // Make an AJAX call to fetch and populate Insurance Types based on selected Broker
+    //    $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
+    //        $('#InsuranceTypeId').empty(); // Clear previous options
+    //        $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Type --' }));
+    //        $.each(data, function (index, item) {
+    //            $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+    //        });
+    //    });
+    //});
+
+    //$('#InsuranceTypeId').change(function () {
+    //    var selectedInsuranceTypeId = $(this).val();
+    //    // Make an AJAX call to fetch and populate Insurance Sub Types based on selected Insurance Type
+    //    $.get('/Insurance/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
+    //        $('#InsuranceSubTypeId').empty(); // Clear previous options
+    //        $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Sub Type --' }));
+    //        $.each(data, function (index, item) {
+    //            $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
+    //        });
+    //    });
+    //});
+
+    function fetchAccountDetails()
+    {
+    console.log("fetchAccountDetails called");
+
+    var accountNumber = $('#AccountNumber').val();
+      console.log("accountNumber: " + accountNumber);
+    $.ajax({
+        url: '@Url.Action("FetchAccountDetails", "Insurance")',
+        type: 'POST',
+        data: { accountNumber: accountNumber },
+        success: function (response) {
+            console.log("AJAX success");
+            $('#AccountName').val(response.accountName);
+            $('#CustomerName').val(response.customerName);
+            $('#CustomerId').val(response.t24CustomerID);
+            $('#CustomerEmail').val(response.customerEmail);
+            $('#Branchcode').val(response.branchcode);
+        }
+    });
+
+  }
+
+    const input = document.getElementById('AccountNumber');
+
+    input.addEventListener('input', () => {
+        if (input.value.length > 10) {
+            input.setCustomValidity('Number must be 10 digits or less');
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var branchcodeDiv = document.getElementById("branchcodeDiv");
+
+        if (branchcodeDiv) {
+            branchcodeDiv.style.display = "none"; // Hide the div
+        }
+    });
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#resultMessage").fadeOut('slow');
+        }, 5000);
+    });
+</script>

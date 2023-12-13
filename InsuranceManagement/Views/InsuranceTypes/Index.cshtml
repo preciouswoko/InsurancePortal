@@ -1,0 +1,154 @@
+﻿@model IEnumerable<InsuranceCore.Models.InsuranceType>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+@*<h2>Index</h2>*@
+
+@*<p>
+        <a asp-action="CreateInsurance">Create New</a>
+    </p>*@
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}
+<button type="button" class="btn btn-primary" style="background-color: #25237a;">
+    <a asp-action="CreateInsurance" style="color: white; text-decoration: none;">Create New</a>
+</button>
+<input type="text" id="searchTerm" placeholder="Search by name...">
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+
+
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+
+            @*<th>
+                    @Html.DisplayNameFor(model => model.InsuranceSubType)
+                </th>*@
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-account-name="@item.Name">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.InsuranceSubType)
+                    </td>*@
+                <td>
+                    <button type="button" class="btn btn-sm btn-primary" style="background-color: #25237a;">
+                        <a asp-action="EditInsurance" asp-route-id="@item.Id" style="color: white; text-decoration: none;">
+                            <i class="zmdi zmdi-edit"></i>
+                        </a>
+                    </button>
+                    |
+                    <button type="button" class="btn btn-sm btn-danger" style="background-color: #f00; border-color: #f00;">
+                        <a asp-action="DeleteInsurance" asp-route-id="@item.Id" style="color: white; text-decoration: none;">
+                            <i class="zmdi zmdi-delete"></i>
+                        </a>
+                    </button>
+
+                    @*<a asp-action="EditInsurance" asp-route-id="@item.Id">Edit</a> |
+                        @*<a asp-action="DetailsInsurance" asp-route-id="@item.Id">Details</a> |*@
+                    @*<a asp-action="DeleteInsurance" asp-route-id="@item.Id">Delete</a>*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="~/assets/bundles/libscripts.bundle.js"></script>
+@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script>
+
+<script>
+    const searchInput = document.getElementById('searchTerm');
+
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === "Enter") {
+            searchByName();
+        }
+    });
+
+    function searchByName() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const accountNameCell = row.getAttribute('data-account-name').toLowerCase();
+
+            if (!accountNameCell.includes(searchTerm)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+
+        // Show "No results" if needed
+        showNoResultsMessage();
+    }
+
+    function showNoResultsMessage() {
+        const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
+
+        if (visibleRows.length === 0) {
+            // Show no results message or take appropriate action
+        } else {
+            // Hide no results message or take appropriate action
+        }
+    }
+
+    // Initially filter on page load
+    searchByName();
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#resultMessage").fadeOut('slow');
+        }, 5000);
+    });
+</script>

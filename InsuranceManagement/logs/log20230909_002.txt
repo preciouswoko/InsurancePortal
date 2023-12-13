@@ -1,0 +1,31 @@
+2023-09-09 16:25:22.440 +01:00 [ERR] System.InvalidOperationException: A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+   at Microsoft.EntityFrameworkCore.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.LinqOperatorProvider.ExceptionInterceptor`1.EnumeratorExceptionInterceptor.MoveNext()
+   at System.Linq.Enumerable.TryGetFirst[TSource](IEnumerable`1 source, Boolean& found)
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass15_1`1.<CompileQueryCore>b__0(QueryContext qc)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at System.Linq.Queryable.FirstOrDefault[TSource](IQueryable`1 source, Expression`1 predicate)
+   at InsuranceInfrastructure.Helpers.AuditFilterAttribute.OnActionExecuted(ActionExecutedContext context) in C:\Users\pwoko\source\repos\InsuranceManagement\InsuranceInfrastructure\Helpers\AuditFilterAttribute.cs:line 172
+2023-09-09 16:26:47.627 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:26:47
+2023-09-09 16:26:48.224 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:26:48.227 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:26:48
+2023-09-09 16:30:16.612 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:30:16
+2023-09-09 16:30:17.279 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:30:17.281 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:30:17
+2023-09-09 16:59:24.847 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:59:24
+2023-09-09 16:59:25.501 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:59:25.504 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:59:25
+2023-09-09 17:00:15.711 +01:00 [INF] Inside LoginUser  at 09/09/2023 17:00:15
+2023-09-09 17:00:16.360 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 17:00:16.365 +01:00 [INF] Outside LoginUser  at 09/09/2023 17:00:16
+2023-09-09 18:13:28.071 +01:00 [INF] Inside LoginUser  at 09/09/2023 18:13:28
+2023-09-09 18:13:29.273 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 18:13:29.278 +01:00 [INF] Outside LoginUser  at 09/09/2023 18:13:29
+2023-09-09 18:14:45.874 +01:00 [INF] Inside LoginUser  at 09/09/2023 18:14:45
+2023-09-09 18:14:46.854 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 18:14:46.861 +01:00 [INF] Outside LoginUser  at 09/09/2023 18:14:46
+2023-09-09 18:18:12.447 +01:00 [INF] Inside LoginUser  at 09/09/2023 18:18:12
+2023-09-09 18:18:13.581 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 18:18:13.588 +01:00 [INF] Outside LoginUser  at 09/09/2023 18:18:13

@@ -1,0 +1,48 @@
+﻿@model InsuranceManagement.ViewModels.ReviewCertificateViewModel
+
+
+
+@{
+    ViewData["Title"] = "Review Certificate";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Review Certificate</h2>
+
+<div>
+    <iframe src="/uploads/@Model.PdfFileName" width="100%" height="600"></iframe>
+</div>
+
+<form asp-action="ReviewCertificateUpload" method="post">
+
+
+    @Html.HiddenFor(model => model.CertificateID)
+    @Html.HiddenFor(model => model.PdfFileName)
+    <p><strong>Account Number:</strong> @Model.AccountNumber</p>
+    <p><strong>Account Name:</strong> @Model.AccountName</p>
+    <p><strong>Customer ID:</strong> @Model.CustomerID</p>
+    <p><strong>Customer Email:</strong> @Model.CustomerEmail</p>
+    <p><strong>Customer Name:</strong> @Model.CustomerName</p>
+    <p><strong>Broker Name:</strong> @Model.Broker</p>
+    <p><strong>Insurance Type:</strong> @Model.InsuranceType</p>
+    <p><strong>Insurance SubType:</strong> @Model.InsuranceSubType</p>
+    <p><strong>Expiry Date:</strong> @Model.ExpiryDate</p>
+    <p><strong>Issuance Date:</strong> @Model.IssuanceDate</p>
+    <p><strong>Policy Number:</strong> @Model.PolicyNumber</p>
+
+    <p><strong>Estimated Premium:</strong> @Model.EstimatedPremium</p>
+    <div class="form-group">
+        <label for="Status">Status</label>
+        <select id="Status" name="Status" class="form-control" required>
+            <option value="">-- Select Status --</option>
+            <option value="Approved" @(Model.InsuranceFlag= ="Approved" ? "selected" : "" )>Approve</option>
+            <option value="Rejected" @(Model.InsuranceFlag= ="Rejected" ? "selected" : "" )>Reject</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="Comment">Comment</label>
+        <textarea id="Comment" name="Comment" required class="form-control" rows="3">@Model.Comment </textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="background-color: #25237a;">Submit</button>
+</form>

@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Encrypt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Encrypt</h2>
+
+<form method="post" action="@Url.Action("Encrypt", "Home")">
+    <div class="form-group">
+        <label for="value">Value to Encrypt:</label>
+        <input id="value" type="text" class="form-control" name="value" />
+    </div>
+    <button type="submit" class="btn btn-primary">Encrypt</button>
+</form>
+
+@if (ViewData["ResultMessage"] != null)
+{
+    <div class="alert alert-success">
+        @ViewData["ResultMessage"]
+    </div>
+}

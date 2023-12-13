@@ -1,0 +1,104 @@
+﻿@model InsuranceCore.Models.BrokerSubInsuranceType
+
+@{
+    ViewData["Title"] = "CreateBrokerInsuranceSubType";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Create Broker Insurance SubType</h2>
+
+@*<h4>BrokerSubInsuranceType</h4>*@
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateBrokerInsuranceSubType">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="BrokerId" class="control-label"></label>
+                <select asp-for="BrokerId" class="form-control" asp-items="ViewBag.BrokerId" id="BrokerId" required>
+                    <option value="">-- Select Broker --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BrokerInsuranceTypeId" class="control-label"></label>
+                <select asp-for="BrokerInsuranceTypeId" class="form-control" asp-items="ViewBag.BrokerInsuranceTypeId" id="BrokerInsuranceTypeId" required>
+                    <option value="">-- Select Broker Insurance Type --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                @*<input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>*@
+                <select asp-for="Name" class="form-control" asp-items="ViewBag.BrokerInsuranceSubTypeId" id="BrokerInsuranceSubTypeId" required>
+                    <option value="">-- Select Broker Insurance Type --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PercentageToBank" class="control-label"></label>
+                <input asp-for="PercentageToBank" class="form-control" required />
+                <span asp-validation-for="PercentageToBank" class="text-danger"></span>
+            </div>
+            @Html.HiddenFor(model => model.Comment)
+
+            @*<div class="form-group">
+            <label asp-for="Comment" class="control-label"></label>
+            <input asp-for="Comment" class="form-control" />
+            <span asp-validation-for="Comment" class="text-danger"></span>
+        </div>*@
+
+            <div class="form-group">
+                <label asp-for="Status" class="control-label">Status:</label>
+                <select asp-for="Status" class="form-control" required>
+                    <option value="">-- Select Status --</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary btn-default lgtime" style="background-color: #25237a;" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="BrokerInsuranceSubTypeIndex" class="btn btn-success">Back to List</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nouislider@14.6.0/distribute/nouislider.min.js"></script>
+
+<script>
+    $('#BrokerId').change(function () {
+        var selectedBrokerId = $(this).val();
+        console.log('Selected Broker ID: ' + selectedBrokerId); // Log selected Broker ID
+        // Make an AJAX call to fetch and populate Insurance Types based on selected Broker
+        $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
+            $('#BrokerInsuranceTypeId').empty(); // Clear previous options
+            $('#BrokerInsuranceTypeId').append($('<option>', { value: '', text: '-- Select Broker Insurance Type --' }));
+            $.each(data, function (index, item) {
+                $('#BrokerInsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Broker InsuranceType Types loaded.'); // Log when Insurance Types are loaded
+        });
+    });
+
+    $('#BrokerInsuranceTypeId').change(function () {
+        var selectedInsuranceTypeId = $(this).val();
+        console.log('Selected Insurance Type ID: ' + selectedInsuranceTypeId); // Log selected Insurance Type ID
+        // Make an AJAX call to fetch and populate Insurance Sub Types based on selected Insurance Type
+        $.get('/Broker/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
+            $('#BrokerInsuranceSubTypeId').empty(); // Clear previous options
+            $('#BrokerInsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Broker Insurance Sub Type --' }));
+            $.each(data, function (index, item) {
+                $('#BrokerInsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Sub Types loaded.'); // Log when Insurance Sub Types are loaded
+        });
+    });
+
+</script>

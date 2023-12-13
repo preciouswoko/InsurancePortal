@@ -1,0 +1,46 @@
+﻿@model InsuranceCore.DTO.InsuranceViewModel
+@{
+    ViewData["Title"] = "GetInsuranceDetails";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<div class="container">
+    <h2 style="text-align: center;">Insurance Details</h2>
+
+    <dl class="row">
+        <dt class="col-sm-3">Account Number:</dt>
+        <dd class="col-sm-9">@Model.AccountNumber</dd>
+
+        <dt class="col-sm-3">Account Name:</dt>
+        <dd class="col-sm-9">@Model.AccountName</dd>
+
+        <dt class="col-sm-3">Customer Name:</dt>
+        <dd class="col-sm-9">@Model.CustomerName</dd>
+
+        <dt class="col-sm-3">Customer ID:</dt>
+        <dd class="col-sm-9">@Model.CustomerID</dd>
+
+        <dt class="col-sm-3">Customer Email:</dt>
+        <dd class="col-sm-9">@Model.CustomerEmail</dd>
+
+        <dt class="col-sm-3">Broker:</dt>
+        <dd class="col-sm-9">@Model.BrokerId</dd>
+
+        <dt class="col-sm-3">Collateral Value:</dt>
+        <dd class="col-sm-9">@Model.CollateralValue</dd>
+
+        <dt class="col-sm-3">Estimated Premium:</dt>
+        <dd class="col-sm-9">@Model.EstimatedPremium</dd>
+
+        <dt class="col-sm-3">Insurance Type:</dt>
+        <dd class="col-sm-9">@Model.InsuranceTypeId</dd>
+
+        <dt class="col-sm-3">Insurance SubType:</dt>
+        <dd class="col-sm-9">@Model.InsuranceSubTypeId</dd>
+
+        <dt class="col-sm-3">Stage:</dt>
+        <dd class="col-sm-9">@Model.Stage</dd>
+    </dl>
+
+    <a asp-action="Index">Back to List</a>
+</div>

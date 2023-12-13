@@ -1,0 +1,83 @@
+2023-09-09 09:04:49.667 +01:00 [INF] Inside LoginUser  at 09/09/2023 09:04:49
+2023-09-09 09:05:20.668 +01:00 [ERR] System.Net.Http.HttpRequestException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond ---> System.Net.Sockets.SocketException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+   at System.Net.Http.ConnectHelper.ConnectAsync(String host, Int32 port, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.ConnectHelper.ConnectAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at System.Threading.Tasks.ValueTask`1.get_Result()
+   at System.Net.Http.HttpConnectionPool.CreateConnectionAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Threading.Tasks.ValueTask`1.get_Result()
+   at System.Net.Http.HttpConnectionPool.WaitForCreatedConnectionAsync(ValueTask`1 creationTask)
+   at System.Threading.Tasks.ValueTask`1.get_Result()
+   at System.Net.Http.HttpConnectionPool.SendWithRetryAsync(HttpRequestMessage request, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+   at InsuranceInfrastructure.Services.HttpClientService.PostAsync[T](String uri, Object data, Dictionary`2 headers) in C:\Users\pwoko\source\repos\InsuranceManagement\InsuranceInfrastructure\Services\HttpClientService.cs:line 45
+   at InsuranceInfrastructure.Services.AumsService.AuthenticateUser(String username, String password, String accessToken, CancellationToken cancellationToken) in C:\Users\pwoko\source\repos\InsuranceManagement\InsuranceInfrastructure\Services\AumsService.cs:line 64
+2023-09-09 09:05:20.671 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 09:05:20.671 +01:00 [INF] Outside LoginUser  at 09/09/2023 09:05:20
+2023-09-09 09:19:32.839 +01:00 [INF] Inside LoginUser  at 09/09/2023 09:19:32
+2023-09-09 09:19:46.171 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 09:19:46.174 +01:00 [INF] Outside LoginUser  at 09/09/2023 09:19:46
+2023-09-09 09:22:35.788 +01:00 [INF] Inside LoginUser  at 09/09/2023 09:22:35
+2023-09-09 09:22:38.013 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 09:22:38.015 +01:00 [INF] Outside LoginUser  at 09/09/2023 09:22:38
+2023-09-09 12:36:45.580 +01:00 [INF] Inside LoginUser  at 09/09/2023 12:36:45
+2023-09-09 12:36:49.670 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 12:36:49.675 +01:00 [INF] Outside LoginUser  at 09/09/2023 12:36:49
+2023-09-09 13:16:26.052 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:16:26
+2023-09-09 13:16:28.472 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:16:28.475 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:16:28
+2023-09-09 13:18:02.311 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:18:02
+2023-09-09 13:18:04.803 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:18:04.807 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:18:04
+2023-09-09 13:22:36.569 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:22:36
+2023-09-09 13:22:42.232 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:22:42.235 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:22:42
+2023-09-09 13:27:37.160 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:27:37
+2023-09-09 13:27:38.376 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:27:38.379 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:27:38
+2023-09-09 13:42:12.769 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:42:12
+2023-09-09 13:42:13.861 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:42:13.863 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:42:13
+2023-09-09 13:58:57.946 +01:00 [INF] Inside LoginUser  at 09/09/2023 13:58:57
+2023-09-09 13:58:59.176 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 13:58:59.179 +01:00 [INF] Outside LoginUser  at 09/09/2023 13:58:59
+2023-09-09 14:00:46.074 +01:00 [INF] Inside LoginUser  at 09/09/2023 14:00:46
+2023-09-09 14:00:47.578 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 14:00:47.581 +01:00 [INF] Outside LoginUser  at 09/09/2023 14:00:47
+2023-09-09 14:07:26.473 +01:00 [INF] Inside LoginUser  at 09/09/2023 14:07:26
+2023-09-09 14:07:27.991 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 14:07:27.997 +01:00 [INF] Outside LoginUser  at 09/09/2023 14:07:27
+2023-09-09 14:15:01.565 +01:00 [INF] Inside LoginUser  at 09/09/2023 14:15:01
+2023-09-09 14:15:03.124 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 14:15:03.128 +01:00 [INF] Outside LoginUser  at 09/09/2023 14:15:03
+2023-09-09 14:23:26.447 +01:00 [INF] Inside LoginUser  at 09/09/2023 14:23:26
+2023-09-09 14:23:27.857 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 14:23:27.860 +01:00 [INF] Outside LoginUser  at 09/09/2023 14:23:27
+2023-09-09 15:31:23.282 +01:00 [INF] Inside LoginUser  at 09/09/2023 15:31:23
+2023-09-09 15:31:24.833 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 15:31:24.836 +01:00 [INF] Outside LoginUser  at 09/09/2023 15:31:24
+2023-09-09 15:45:05.654 +01:00 [INF] Inside LoginUser  at 09/09/2023 15:45:05
+2023-09-09 15:45:06.328 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 15:45:06.332 +01:00 [INF] Outside LoginUser  at 09/09/2023 15:45:06
+2023-09-09 15:54:04.638 +01:00 [INF] Inside LoginUser  at 09/09/2023 15:54:04
+2023-09-09 15:54:05.425 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 15:54:05.430 +01:00 [INF] Outside LoginUser  at 09/09/2023 15:54:05
+2023-09-09 15:56:30.905 +01:00 [INF] Inside LoginUser  at 09/09/2023 15:56:30
+2023-09-09 15:56:31.522 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 15:56:31.526 +01:00 [INF] Outside LoginUser  at 09/09/2023 15:56:31
+2023-09-09 15:58:38.255 +01:00 [INF] Inside LoginUser  at 09/09/2023 15:58:38
+2023-09-09 15:58:38.822 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 15:58:38.824 +01:00 [INF] Outside LoginUser  at 09/09/2023 15:58:38
+2023-09-09 16:01:31.449 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:01:31
+2023-09-09 16:01:32.093 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:01:32.098 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:01:32
+2023-09-09 16:09:28.604 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:09:28
+2023-09-09 16:09:29.229 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:09:29.234 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:09:29
+2023-09-09 16:13:50.472 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:13:50
+2023-09-09 16:13:51.240 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:13:51.243 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:13:51

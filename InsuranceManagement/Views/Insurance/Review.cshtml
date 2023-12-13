@@ -1,0 +1,151 @@
+﻿@model List<InsuranceManagement.ViewModels.ReviewCertViewModel>
+@{
+    ViewData["Title"] = "Review Certificate";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Review Certificates</h2>
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+@*@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}*@
+@if (Model.Count == 0)
+{
+    <p>No records to display.</p>
+}
+else
+{
+    <input type="text" id="searchTerm" placeholder="Search by account number...">
+    <table class="table">
+        <thead>
+            <tr>
+                @*<th>Certificate ID</th>*@
+                @*<th>Issuance Date</th>
+                    <th>Expiry Date</th>
+                    <th>Policy Number</th>
+                    <th>Estimated Premium</th>*@
+                <th>Customer Email</th>
+                <th>Customer ID</th>
+                <th>Customer Name</th>
+                <th>Account Number</th>
+                <th>Account Name</th>
+                @*<th>Broker</th>
+                    <th>Insurance Type</th>
+                    <th>Insurance SubType</th>
+                    <th>Underwrite</th>*@
+                <th>ViewUpload</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    @*<td>@item.CertificateID</td>*@
+                    @*<td>@item.IssuanceDate?.ToShortDateString()</td>
+                        <td>@item.ExpiryDate?.ToShortDateString()</td>
+                        <td>@item.PolicyNumber</td>
+                        <td>@item.EstimatedPremium</td>*@
+                    <td>@item.CustomerEmail</td>
+                    <td>@item.T24CustomerID</td>
+                    <td>@item.CustomerName</td>
+                    <td>@item.AccountNumber</td>
+                    <td>@item.AccountName</td>
+                    @*<td>@item.Broker</td>
+                        <td>@item.InsuranceType</td>
+                        <td>@item.InsuranceSubType</td>
+                        <td>@item.Underwrite</td>*@
+                    <td>
+                        <form asp-controller="Insurance" asp-action="ReviewCertificateUpload" method="get">
+                            <input type="hidden" name="certificateId" value="@item.CertificateID" />
+                            <button type="submit" class="btn btn-primary" style="background-color: #25237a;">Upload</button>
+                        </form>
+                    </td>
+                    <td>
+                        <input type="hidden" asp-for="@item.CertificateID" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<script>
+    const searchInput = document.getElementById('searchTerm');
+
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === "Enter") {
+            searchByAccountNumber();
+        }
+    });
+
+    function searchByAccountNumber() {
+        const searchTerm1 = searchInput.value;
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const accountNumberCell = row.querySelector('td:first-child');
+
+            if (!accountNumberCell.textContent.includes(searchTerm1)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+
+        // Show "No results" if needed
+        showNoResultsMessage();
+    }
+
+    function showNoResultsMessage() {
+        const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
+
+        if (visibleRows.length == 0) {
+            // Show no results message (implement this)
+        } else {
+            // Hide no results message (implement this)
+        }
+    }
+
+    // Initially filter on page load
+    searchByAccountNumber();
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#resultMessage").fadeOut('slow');
+        }, 5000);
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="~/assets/bundles/libscripts.bundle.js"></script>
+@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script>

@@ -1,0 +1,233 @@
+﻿@model InsuranceCore.DTO.InsuranceReportViewModel
+@{
+    ViewData["Title"] = "GetAllInsurance";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+@using (Html.BeginForm("GenerateReport", "Insurance", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="container-fluid">
+        <!-- Basic Examples -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header" >
+                        <h2><strong>Insurance Report</strong> </h2>
+                    </div>
+                    <div class="body">
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary()
+
+                        <div class="row">
+                            <div class="col-sm-3 col-sm-text-right">
+                                @Html.LabelFor(m => m.PolicyStartDate, "Policy Date")
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="zmdi zmdi-calendar"></i>
+                                    </span>
+                                    @Html.TextBoxFor(m => m.PolicyStartDate, new { @class = "form-control formatdate", @placeholder = "Please choose date & time..." })
+                                </div>
+                            </div>
+                            <div class="col-sm-1 text-center">To</div>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="zmdi zmdi-calendar"></i>
+                                    </span>
+                                    @Html.TextBoxFor(m => m.PolicyEndDate, new { @class = "form-control formatdate", @placeholder = "Please choose date & time..." })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 col-sm-text-right">
+                                @Html.LabelFor(m => m.InsuranceFlag, "Insurance Flag")
+                            </div>
+                            <div class="col-sm-3">
+                                <select class="form-control" id="insuranceFlagSelect" name="InsuranceFlag">
+                                    <option value="">Enter Insurance Flag...</option>
+                                    <option value="Initial">Initial</option>
+                                    <option value="UnderwriterAssigned">UnderwriterAssigned</option>
+                                    <option value="CertificateUploaded">CertificateUploaded</option>
+                                    <option value="SetContractId">SetContractId</option>
+                                    <option value="AuthorizeRequest">AuthorizeRequest</option>
+                                    <option value="ReviewCertificate">ReviewCertificate</option>
+                                    <option value="New">New</option>
+                                    <option value="Due">Due</option>
+                                    <option value="End">End</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3 col-sm-text-right">  </div>
+                            <div class="col-sm-3">
+                                <button type="submit" class="btn bg-light-blue waves-effect" formtarget="_blank">
+                                    <i class="glyphicon glyphicon-th"></i> Generate More Info in Csv
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="tab-pane" id="tab2">
+    <div class="header">
+        <h2><strong>Insurance Data Table</strong></h2>
+        @Html.ActionLink("Add", "CreateRequest1", "Insurance", null, new { @class = "btn  btn-default lgtime", style = "background-color: #25237a" })
+    </div>
+    <table class="table table-striped table-responsive table-bordered table-hover " style="table-layout: unset;overflow-x: scroll;width: 100%!important;" id="ProfileTable">
+        <thead>
+            <tr>
+                <th>S/N</th>
+                <th>ContractId</th>
+                <th>AccountNumber</th>
+                <th>CustomerID</th>
+                <th>CustomerName</th>
+                <th>CustomerEmail</th>
+                <th>PolicyNumber</th>
+                <th>CollateralValueFSV</th>
+                <th>Broker</th>
+                <th>Underwriter</th>
+                <th>DateOfPolicyIssuance</th>
+                <th>PolicyExpiryDate</th>
+                <th>PolicyDuration</th>
+                <th>InsuranceType</th>
+                <th>InsuranceSubType</th>
+                <th>PremiumAmount</th>
+                <th>PremiumDRAccount</th>
+                <th>PremiumCRAccount</th>
+                <th>PremiumUniqueID</th>
+                <th>CommissionAmount</th>
+                <th>CommissionUniqueID</th>
+                <th>InsuranceFlag</th>
+                <th>InsuranceCertificateStatus</th>
+                <th>Branch</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="gradeX">
+                <td id="id_NAME"> </td>
+                <td id="id_EMA"> </td>
+                <td id="id_PN"> </td>
+                <td id="id_MOB"> </td>
+                <td id="id_ELA"> </td>
+                <td id="id_MDS"> </td>
+                <td id="id_ICC"> </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>S/N</th>
+                <th>ContractId</th>
+                <th>AccountNumber</th>
+                <th>CustomerID</th>
+                <th>CustomerName</th>
+                <th>CustomerEmail</th>
+                <th>PolicyNumber</th>
+                <th>CollateralValueFSV</th>
+                <th>Broker</th>
+                <th>Underwriter</th>
+                <th>DateOfPolicyIssuance</th>
+                <th>PolicyExpiryDate</th>
+                <th>PolicyDuration</th>
+                <th>InsuranceType</th>
+                <th>InsuranceSubType</th>
+                <th>PremiumAmount</th>
+                <th>PremiumDRAccount</th>
+                <th>PremiumCRAccount</th>
+                <th>PremiumUniqueID</th>
+                <th>CommissionAmount</th>
+                <th>CommissionUniqueID</th>
+                <th>InsuranceFlag</th>
+                <th>InsuranceCertificateStatus</th>
+                <th>Branch</th>
+            </tr>
+        </tfoot>
+    </table>
+
+</div>
+@*<div id="loader2" data-request-ajax2="@Url.Action("Logout")"></div>*@
+@section Scripts {
+  
+
+
+    <script src="~/assets/js/sweetalert.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var PaymentTable = $('#ProfileTable').DataTable({
+                "Destroy": true,
+                "pageLength": 100,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/Insurance/FetchInsurances",
+                    "dataType": "json",
+                    "type": "POST",
+
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "contractId" },
+                    { "data": "accountNumber" },
+                    { "data": "customerID" },
+                    { "data": "customerName", "orderable": true },
+                    { "data": "customerEmail", "orderable": true },
+                    { "data": "policyNo", "orderable": true },
+                    { "data": "collateralValue" },
+                    { "data": "broker" },
+                    { "data": "underwriter" },
+                    { "data": "dateofIssuance" },
+                    { "data": "policyExpiryDate" },
+                    { "data": "policyDuration" },
+                    { "data": "insuranceType" },
+                    { "data": "subInsuranceType" },
+                    { "data": "premiumAmount" },
+                    { "data": "premiumDRAccount" },
+                    { "data": "premiumCRAccount" },
+                    { "data": "premiumUniqueID" },
+                    { "data": "commissionAmount" },
+                    { "data": "commissionUniqueID" },
+                    { "data": "insuranceFlag", "orderable": true },
+                    { "data": "insuranceStatus", "orderable": true },
+                    { "data": "branch", "orderable": true },
+                ],
+                "ordering": true,
+                "paging": true,
+                "pagingType": "full_numbers",
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+
+                ]
+            })
+            PaymentTable.on('page.dt', function () {
+                $('html, body').animate({
+                    scrollTop: $(".dataTables_wrapper").offset().top
+                }, 'slow');
+
+                $('thead tr th:first-child').focus().blur();
+            })
+            console.log("DataTable initialized.");
+            $('#id_structure').change(function () {
+                var value = $('#id_structure').val();
+                if (value === "Restructure")
+                    window.location.replace("/Insurance/FetchInsurancesWithoutCodition");
+
+                else
+                    window.location.replace("/Insurance/FetchInsurancesWithoutCodition");
+            });
+        });
+        // Populate the textbox with the selected value from the dropdown
+        $('#insuranceFlagSelect').on('change', function () {
+            var selectedValue = $(this).val();
+            $('#InsuranceFlag').val(selectedValue);
+        });
+    </script>
+}
+
+
+

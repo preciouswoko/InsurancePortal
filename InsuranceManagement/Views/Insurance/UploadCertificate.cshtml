@@ -1,0 +1,99 @@
+﻿@model InsuranceCore.DTO.CertificateRequest
+@{
+    ViewData["Title"] = "UploadCertificate";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Upload Insurance Certificate</h2>
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}
+
+<form asp-controller="Insurance" asp-action="UploadCertificate" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="insuranceId" />
+
+    <div class="form-group">
+        <label asp-for="PolicyNumber">Policy Number</label>
+        <input asp-for="PolicyNumber" class="form-control" required />
+        <span asp-validation-for="PolicyNumber" class="text-danger"></span>
+    </div>
+    @*<div class="form-group">
+            <label asp-for="DateofIssuance">Date of Issuance (YYYY-MM-DD)</label>
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <i class="zmdi zmdi-calendar"></i>
+                </span>
+                <input asp-for="DateofIssuance" class="form-control formatdate" required placeholder="Please choose date & time..." />
+            </div>
+            <span asp-validation-for="DateofIssuance" class="text-danger"></span>
+        </div>*@
+
+    <div class="form-group">
+        <label asp-for="DateofIssuance">Date of Issuance (YYYY-MM-DD)</label>
+        <input asp-for="DateofIssuance" class="form-control" required />
+        <span asp-validation-for="DateofIssuance" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExpiryDate">Expiry Date of Certificate (YYYY-MM-DD)</label>
+        <input asp-for="ExpiryDate" class="form-control" required />
+        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+    </div>
+    @*<div class="form-group">
+            <label asp-for="ExpiryDate">Expiry Date of Certificate (YYYY-MM-DD)</label>
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <i class="zmdi zmdi-calendar"></i>
+                </span>
+                <input asp-for="ExpiryDate" class="form-control formatdate" required placeholder="Please choose date & time..." />
+            </div>
+            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+        </div>*@
+
+    <div class="form-group">
+        <label asp-for="Certificatefile">Select Certificate File</label>
+        <input asp-for="Certificatefile" type="file" class="form-control" required />
+        <span asp-validation-for="Certificatefile" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="background-color: #25237a;">Upload Certificate</button>
+
+</form>
+
+<script>
+    // Auto-hide the result message after 5 seconds (adjust the duration as needed)
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#resultMessage").fadeOut('slow');
+        }, 5000);
+    });
+</script>

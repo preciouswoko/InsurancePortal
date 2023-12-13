@@ -1,0 +1,25 @@
+﻿<!-- _ResultMessageModal.cshtml -->
+
+<div class="modal fade" id="resultMessageModal" tabindex="-1" role="dialog" aria-labelledby="resultMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultMessageModalLabel">Result Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (TempData.ContainsKey("ResultMessage"))
+                {
+                    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")">
+                        @TempData["ResultMessage"]
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

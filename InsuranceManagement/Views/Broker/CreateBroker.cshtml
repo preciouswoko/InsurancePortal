@@ -1,0 +1,110 @@
+﻿@model InsuranceCore.Models.Broker
+@{
+    ViewData["Title"] = "CreateBroker";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2 style="text-align: center;">Create Broker</h2>
+
+<!-- Form for creating a new Broker -->
+<form asp-action="CreateBroker" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <strong>
+            <label asp-for="AccountNumber" class="control-label"></label>
+            <input id="AccountNumber" asp-for="AccountNumber" class="form-control" onblur="fetchAccountDetails()" />
+
+            <span asp-validation-for="AccountNumber" class="text-danger"></span>
+        </strong>
+
+    </div>
+    <div class="form-group">
+        <label asp-for="BrokerName" class="control-label">Broker Name:</label>
+        <input asp-for="BrokerName" class="form-control" />
+        <span asp-validation-for="BrokerName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AccountName" class="control-label">Account Name:</label>
+        <input asp-for="AccountName" class="form-control" readonly />
+        <span asp-validation-for="AccountName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status" class="control-label">Status:</label>
+        <select asp-for="Status" class="form-control" required>
+            <option value="">-- Select Status --</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CustomerID" class="control-label">Customer ID:</label>
+        <input asp-for="CustomerID" class="form-control" readonly />
+        <span asp-validation-for="CustomerID" class="text-danger"></span>
+    </div>
+
+
+
+    <div class="form-group">
+        <label asp-for="EmailAddress" class="control-label">Email Address:</label>
+        <input asp-for="EmailAddress" class="form-control" readonly />
+        <span asp-validation-for="EmailAddress" class="text-danger"></span>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary" style="background-color: #25237a;">Create Broker</button>
+</form>
+
+<!-- Display fetched data (if available) -->
+@if (Model != null)
+{
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="card-title">Fetched Data</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Account Name:</dt>
+                <dd class="col-sm-9">@Model.AccountName</dd>
+
+                <dt class="col-sm-3">Customer ID:</dt>
+                <dd class="col-sm-9">@Model.CustomerID</dd>
+
+                <dt class="col-sm-3">Customer Email:</dt>
+                <dd class="col-sm-9">@Model.EmailAddress</dd>
+
+                <dt class="col-sm-3">Customer Name:</dt>
+                <dd class="col-sm-9">@Model.BrokerName</dd>
+                <!-- Add other properties as needed -->
+            </dl>
+        </div>
+    </div>
+}
+<script>
+  function fetchAccountDetails() {
+    console.log("fetchAccountDetails called");
+
+    var accountNumber = $('#AccountNumber').val();
+      console.log("accountNumber: " + accountNumber);
+    $.ajax({
+        url: '@Url.Action("FetchAccountDetails", "Insurance")',
+        type: 'POST',
+        data: { accountNumber: accountNumber },
+        success: function (response) {
+            console.log("AJAX success");
+            $('#AccountName').val(response.accountName);
+            $('#CustomerName').val(response.customerName);
+            $('#CustomerID').val(response.t24CustomerID);
+            $('#EmailAddress').val(response.customerEmail);
+        }
+    });
+
+  }
+
+
+
+</script>
+<div>
+    <a asp-action="Index" class="btn btn-success">Back to List</a>
+</div>

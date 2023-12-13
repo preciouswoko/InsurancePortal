@@ -1,0 +1,237 @@
+﻿@model IEnumerable<InsuranceCore.DTO.RecordReport>
+@{
+    ViewData["Title"] = "Report";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+<h2>Record Report</h2>
+@using (Html.BeginForm("Filter", "Insurance", FormMethod.Get))
+{
+    <div>
+        <label for="ContractId">Contract ID:</label>
+        <input type="text" name="ContractId" id="ContractId" />
+    </div>
+    <div>
+        <label for="CustomerID">Customer ID:</label>
+        <input type="text" name="CustomerID" id="CustomerID" />
+    </div> <div>
+        <label for="CustomerName">Customer Name :</label>
+        <input type="text" name="CustomerName" id="CustomerName" />
+    </div> <div>
+        <label for="AccountNo">Account Nunmber:</label>
+        <input type="text" name="AccountNo" id="AccountNo" />
+    </div> <div>
+        <label for="InsuranceFlag">Insurance Flag:</label>
+        <input type="text" name="InsuranceFlag" id="InsuranceFlag" />
+    </div> <div>
+        <label for="PolicyExpiryStartDate">PolicyExpiryStartDate:</label>
+        <input type="text" name="PolicyExpiryStartDate" id="PolicyExpiryStartDate" />
+    </div> <div>
+        <label for="PolicyExpiryEndDate">PolicyExpiryEndDate:</label>
+        <input type="text" name="PolicyExpiryEndDate" id="PolicyExpiryEndDate" />
+    </div> <div>
+        <label for="Broker">Broker:</label>
+        <input type="text" name="Broker" id="Broker" />
+    </div> <div>
+        <label for="Underwriter">Underwriter:</label>
+        <input type="text" name="Underwriter" id="Underwriter" />
+    </div>
+    <div>
+        <button type="submit">Filter</button>
+    </div>
+}
+
+<div class="header">
+    <h2><strong>Insurance Data Table</strong></h2>
+    @Html.ActionLink("Add", "CreateRequest", "Insurance", null, new { @class = "btn  btn-default lgtime", style = "background-color: #25237a" })
+</div>
+<table class="table" id="myTable">
+    <thead>
+        <tr>
+            <th>View</th>
+            <th>Record ID</th>
+            <th>Contract ID</th>
+            <th>Account Number</th>
+            <th>Account Name</th>
+            <th>Customer ID</th>
+            <th>Customer Name</th>
+            <th>Customer Email</th>
+            <th>Broker</th>
+            <th>Underwriter</th>
+            <th>Collateral Value</th>
+            <th>Estimated Premium</th>
+            <th>Insurance Type</th>
+            <th>Sub Insurance Type</th>
+            <th>No of Debit Passed</th>
+            <th>Insurance Flag</th>
+            <th>Contract Maturity Date</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal_@record.RecordId">
+                        View
+                    </button>
+                </td>
+                <td>@record.RecordId</td>
+                <td>@record.ContractId</td>
+                <td>@record.AccountNumber</td>
+                <td>@record.AccountName</td>
+                <td>@record.CustomerID</td>
+                <td>@record.CustomerName</td>
+                <td>@record.CustomerEmail</td>
+                <td>@record.Broker</td>
+                <td>@record.Underwriter</td>
+                <td>@record.CollateralValue</td>
+                <td>@record.EstimatedPremium</td>
+                <td>@record.InsuranceType</td>
+                <td>@record.SubInsuranceType</td>
+                <td>@record.DebitPassed</td>
+                <td>@record.InsuranceFlag</td>
+                <td>@record.ContractMaturityDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@using (Html.BeginForm("ExportToExcel", "Insurance", FormMethod.Post))
+{
+    <input type="hidden" name="tableDataJson" id="tableDataJson" />
+
+    <button type="submit">Export to Excel</button>
+}
+<script>
+    $(document).ready(function () {
+        // Create an array to hold the table data
+        var tableData = [];
+
+        // Loop through each row of the table and extract the data
+        $("#myTable tbody tr").each(function () {
+            var rowData = {
+                RecordId: $(this).find("td:eq(1)").text(),
+                ContractId: $(this).find("td:eq(2)").text(),
+                AccountNumber: $(this).find("td:eq(3)").text(),
+                AccountName: $(this).find("td:eq(4)").text(),
+                CustomerID: $(this).find("td:eq(5)").text(),
+                CustomerName: $(this).find("td:eq(6)").text(),
+                CustomerEmail: $(this).find("td:eq(7)").text(),
+                Broker: $(this).find("td:eq(8)").text(),
+                Underwriter: $(this).find("td:eq(9)").text(),
+                CollateralValue: $(this).find("td:eq(10)").text(),
+                EstimatedPremium: $(this).find("td:eq(11)").text(),
+                InsuranceType: $(this).find("td:eq(12)").text(),
+                SubInsuranceType: $(this).find("td:eq(13)").text(),
+                DebitPassed: $(this).find("td:eq(14)").text(),
+                InsuranceFlag: $(this).find("td:eq(15)").text(),
+                ContractMaturityDate: $(this).find("td:eq(16)").text()
+                // Add more fields as needed
+            };
+
+            // Log the extracted data to the console
+            console.log(rowData);
+
+            tableData.push(rowData);
+        });
+
+        // Serialize the table data to JSON
+        var tableDataJson = JSON.stringify(tableData);
+
+        // Set the serialized JSON data to the hidden input field
+        $("#tableDataJson").val(tableDataJson);
+
+        // Send the data to the "ExportToExcel" action using AJAX
+        $.ajax({
+            type: "POST",
+            url: "/Insurance/ExportToExcel",
+            data: { tableDataJson: tableDataJson },
+            success: function (response) {
+                // Handle the response from the server, if needed
+                console.log(response);
+            },
+            error: function (error) {
+                // Handle any errors, if they occur
+                console.error(error);
+            }
+        });
+    });
+</script>
+
+<script src="~/assets/bundles/libscripts.bundle.js"></script>
+@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script>
+
+
+
+
+
+@foreach (var record in Model)
+{
+    <div class="modal fade" id="myModal_@record.RecordId" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">@*Details for RecordId: @record.RecordId*@</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>Policy No</th>
+                                <td>@record.PolicyNo</td>
+                            </tr>
+                            <tr>
+                                <th>DateofIssuance</th>
+                                <td>@record.DateofIssuance</td>
+                            </tr>
+                            <tr>
+                                <th>Policy Expiry date</th>
+                                <td>@record.PolicyExpiryDate</td>
+                            </tr>
+                            <tr>
+                                <th>Certificate</th>
+                                <td>
+                                    <form asp-controller="Insurance" asp-action="DownloadCertificate" asp-route-RequestId="@record.RecordId" method="post">
+                                        <button type="submit" class="btn btn-primary">Download</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Premium DR Account</th>
+                                <td>@record.PremiumDRAccount</td>
+                            </tr>
+                            <tr>
+                                <th>Premium Cr Account</th>
+                                <td>@record.PremiumCRAccount</td>
+                            </tr>
+                            <tr>
+                                <th>Premium Amount</th>
+                                <td>@record.PremiumAmount</td>
+                            </tr>
+                            <tr>
+                                <th>Premium Unique ID</th>
+                                <td>@record.PremiumUniqueID</td>
+                            </tr>
+                            <tr>
+                                <th>Commission Amount</th>
+                                <td>@record.CommissionAmount</td>
+                            </tr>
+                            <tr>
+                                <th>Commission Unique ID</th>
+                                <td>@record.CommissionUniqueID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+}

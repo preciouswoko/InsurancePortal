@@ -1,0 +1,110 @@
+﻿@model InsuranceCore.DTO.LoginViewModel
+
+@{
+    ViewData["Title"] = "LoginExternalUser";
+    // Layout = "~/Views/Shared/_Layout2.cshtml";
+    Layout = null;
+}
+
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta name="description" content="Insurance Management">
+    <title>:: Insurance Management Dashboard</title>
+    <!-- Favicon-->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Custom Css -->
+    <link rel="stylesheet" href="~/assets/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/main.css">
+    <link rel="stylesheet" href="~/assets/css/authentication.css">
+    <link rel="stylesheet" href="~/assets/css/color_skins.css">
+</head>
+<body class="theme-cyan authentication sidebar-collapse">
+    <div style="display:none;" class="page-loader-wrapper">
+        <div class="loader">
+            <div class="m-t-30">
+                <!-- Replace the existing logo code with the new logo code -->
+                <div class="mb-4 mb-md-5 text-center">
+                    <a class="d-block auth-logo">
+                        <img src="~/assets/images/Keystone_logo.png" alt="Keystone Logo" height="75" width="75">
+                    </a>
+                </div>
+            </div>
+            <p>Please wait...</p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-transparent">
+        <div class="container">
+            <div class="navbar-translate n_logo">
+                <a class="navbar-brand" href="index.html" title=""></a>
+                <button class="navbar-toggler" type="button">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+    <div class="page-header">
+        <div class="page-header-image">
+            <img src="assets/images/KeyStoneBank.jpg" alt="KeyStone Bank Image">
+        </div>
+
+        @*<div class="page-header-image" style="background-image:url(assets/images/KeyStoneBank.jpg)"></div>*@
+        <div class="container">
+            <div class="col-md-12 content-center">
+                <div class="card-plain">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 mb-md-5 text-center">
+                            <a class="d-block auth-logo">
+                                <img src="~/assets/images/Keystone_logo.png" alt="Keystone Logo" height="75" width="75">
+                            </a>
+                        </div>
+                        <div class="auth-content my-auto">
+                            <div class="text-center">
+                                <h5 class="mb-0"><strong>Welcome Back !</strong></h5>
+                                <p class="text-muted mt-2"><strong>Sign in to continue.</strong></p>
+                            </div>
+
+
+                            @*<div class="card-header">
+                                <h3>External User Login</h3>
+                            </div>
+                            <div class="card-body">*@
+                            <form asp-action="LoginExternalUser" method="post">
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-group">
+                                    <label asp-for="Username">Username:</label>
+                                    <input asp-for="Username" class="form-control" />
+                                    <span asp-validation-for="Username" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Password">Password:</label>
+                                    <input asp-for="Password" type="password" class="form-control" />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jquery Core Js -->
+    <script src="~/assets/bundles/libscripts.bundle.js"></script>
+    <script src="~/assets/bundles/vendorscripts.bundle.js"></script> <!-- Lib Scripts Plugin Js -->
+    <script src="~/assets/js/sweetalert.js"></script>
+
+</body>
+</html>

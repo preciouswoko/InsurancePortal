@@ -1,0 +1,55 @@
+﻿.custome-form input.form-control, .custome-form select.form-control {
+    border-radius: 0;
+    padding: 20px 20px;
+}
+
+.custome-form .bootstrap-select button {
+    border-radius: 0 !important;
+    margin: 0;
+    border-color: #E3E3E3 !important;
+    padding: 20px 20px;
+}
+.custome-form .bootstrap-select{
+   padding: 0;
+}
+
+.transaction-search-filter {
+    padding: 100px 50px !important;
+    max-width: 70%;
+    margin: auto;
+}
+.search-list {
+    padding: 10px;
+}
+.search-name {
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.search-bvn, .search-phone {
+    display: inline-block;
+    width: 50%;
+    font-size: 12px;
+}
+.search-item {
+    border-bottom: 1px dotted;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 10px;
+}
+.search-list {
+    padding: 0;
+    position: absolute;
+    background: #fff;
+    width: 92%;
+    top: 56px;
+    z-index: 1;
+}
+.search-item:hover {
+    background: #3ebbbe;
+    color: #fff;
+}
+.js-basic-example .btn-block {
+    display: block;
+    width: auto;
+}

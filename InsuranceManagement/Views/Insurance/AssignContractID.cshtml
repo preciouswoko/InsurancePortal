@@ -1,0 +1,239 @@
+﻿@model List<InsuranceManagement.ViewModels.AssignContractIDViewModel>
+@{
+    ViewData["Title"] = "Assign Contract ID";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+<h2 style="text-align: center;">Assign Contract ID</h2>
+
+<div class="container-fluid">
+    @{
+        if (ViewData["Error"] != null || ViewData["Message"] != null)
+        {
+            string alertType = ViewData["Error"] != null ? "danger" : "success";
+            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+                <!-- Add cancel button with icon at the top -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <i class="fa @alertIcon me-2"></i>
+                    <div>
+                        <h5 class="alert-heading">@alertHeading</h5>
+                        <p id="alert-message">@alertMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+<!-- Display success or error message -->
+@*@if (TempData.ContainsKey("ResultMessage"))
+{
+    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
+        @TempData["ResultMessage"]
+    </div>
+}*@
+@if (Model.Count == 0)
+{
+    <p>No records to display.</p>
+}
+else
+{
+    <input type="text" id="searchTerm" placeholder="Search by account number...">
+    <!-- Table to display records -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Account Number</th>
+                <th>Account Name</th>
+                <th>Customer Name</th>
+                <th>Broker</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in Model)
+            {
+                <tr>
+                    <td>@record.AccountNumber</td>
+                    <td>@record.AccountName</td>
+                    <td>@record.CustomerName</td>
+                    <td>@record.Broker</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal_@record.RequestId">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Modal for each record -->
+    @foreach (var record in Model)
+    {
+        <div class="modal fade" id="myModal_@record.RequestId" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">@*Details for Request ID: @record.RequestId*@</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Account Number</th>
+                                    <td>@record.AccountNumber</td>
+                                </tr>
+                                <tr>
+                                    <th>Account Name</th>
+                                    <td>@record.AccountName</td>
+                                </tr>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <td>@record.CustomerName</td>
+                                </tr>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <td>@record.CustomerID</td>
+                                </tr>
+                                <tr>
+                                    <th>Customer Email</th>
+                                    <td>@record.CustomerEmail</td>
+                                </tr>
+                                <tr>
+                                    <th>CollateralValue</th>
+                                    <td>@record.CollateralValue</td>
+                                </tr>
+                                <tr>
+                                    <th>Estimated Premium</th>
+                                    <td>@record.Premium</td>
+                                </tr>
+                                <tr>
+                                    <th>Insurance Type</th>
+                                    <td>@record.InsuranceType</td>
+                                </tr>
+                                <tr>
+                                    <th>Insurance SubType</th>
+                                    <td>@record.InsuranceSubType</td>
+                                </tr>
+                                <tr>
+                                    <th>Broker</th>
+                                    <td>@record.Broker</td>
+                                </tr>
+                                <tr>
+                                    <th>Underwrite</th>
+                                    <td>@record.Underwrite</td>
+                                </tr>
+                                <tr>
+                                    <th>PolicyNumber</th>
+                                    <td>@record.PolicyNumber</td>
+                                </tr>
+                                <tr>
+                                    <th>PolicyExpiryDate</th>
+                                    <td>@record.PolicyExpiryDate</td>
+                                </tr>
+                                <tr>
+                                    <th>PolicyStartDate</th>
+                                    <td>@record.PolicyStartDate</td>
+                                </tr>
+                                <tr>
+                                    <th>DebitsPassed</th>
+                                    <td>@record.DebitsPassed</td>
+                                </tr>
+                                <tr>
+                                    <th>Certificate</th>
+                                    <td>
+                                        <form asp-controller="Insurance" asp-action="DownloadCertificate" asp-route-RequestId="@record.RequestId" method="post">
+                                            <button type="submit" class="btn btn-primary">Download</button>
+                                        </form>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <!-- Form for submitting Underwriters  -->
+                        <form asp-action="UpdateRequest" asp-route-requestId="@record.RequestId" method="post">
+
+                            <div class="form-group">
+                                <strong>
+                                    <label asp-for="@record.ContractID" class="control-label"></label>
+                                    <input name="ContractID" asp-for="@record.ContractID" class="form-control" required />
+                                    <span asp-validation-for="@record.ContractID" class="text-danger"></span>
+                                </strong>
+                            </div>
+
+
+
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    }
+}
+<!-- Your HTML code here -->
+<!-- JavaScript code -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="~/assets/bundles/libscripts.bundle.js"></script>
+@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
+<script src="~/assets/bundles/vendorscripts.bundle.js"></script>
+
+<script>
+    const searchInput = document.getElementById('searchTerm');
+
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === "Enter") {
+            searchByAccountNumber();
+        }
+    });
+
+    function searchByAccountNumber() {
+        const searchTerm1 = searchInput.value;
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const accountNumberCell = row.querySelector('td:first-child');
+
+            if (!accountNumberCell.textContent.includes(searchTerm1)) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+
+        // Show "No results" if needed
+        showNoResultsMessage();
+    }
+
+    function showNoResultsMessage() {
+        const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
+
+        if (visibleRows.length == 0) {
+            // Show no results message (implement this)
+        } else {
+            // Hide no results message (implement this)
+        }
+    }
+
+    // Initially filter on page load
+    searchByAccountNumber();
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#resultMessage").fadeOut('slow');
+        }, 5000);
+    });
+</script>

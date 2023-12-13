@@ -1,0 +1,11 @@
+﻿@model InsuranceCore.DTO.Request1
+@{
+    string requestId = ViewData["RequestId"] as string;
+}
+
+<div class="request-partial">
+    <h4>Request Details</h4>
+    <p><strong>Request ID:</strong> @requestId</p>
+    <p><strong>Comment:</strong> @Model.Comment</p>
+    <p><strong>Status:</strong> @Model.Status</p>
+</div>

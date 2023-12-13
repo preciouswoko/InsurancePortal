@@ -1,0 +1,19 @@
+2023-09-09 16:15:53.785 +01:00 [ERR] System.InvalidOperationException: A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+   at Microsoft.EntityFrameworkCore.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.LinqOperatorProvider.ExceptionInterceptor`1.EnumeratorExceptionInterceptor.MoveNext()
+   at System.Linq.Enumerable.TryGetFirst[TSource](IEnumerable`1 source, Boolean& found)
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass15_1`1.<CompileQueryCore>b__0(QueryContext qc)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at System.Linq.Queryable.FirstOrDefault[TSource](IQueryable`1 source, Expression`1 predicate)
+   at InsuranceInfrastructure.Helpers.AuditFilterAttribute.OnActionExecuted(ActionExecutedContext context) in C:\Users\pwoko\source\repos\InsuranceManagement\InsuranceInfrastructure\Helpers\AuditFilterAttribute.cs:line 172
+2023-09-09 16:17:22.733 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:17:22
+2023-09-09 16:17:23.420 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:17:23.423 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:17:23
+2023-09-09 16:21:22.539 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:21:22
+2023-09-09 16:21:23.249 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:21:23.252 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:21:23
+2023-09-09 16:25:04.189 +01:00 [INF] Inside LoginUser  at 09/09/2023 16:25:04
+2023-09-09 16:25:04.776 +01:00 [INF] InsuranceManagement.ViewModels.LoginResponseModel
+2023-09-09 16:25:04.779 +01:00 [INF] Outside LoginUser  at 09/09/2023 16:25:04

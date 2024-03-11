@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using static InsuranceCore.DTO.ReusableVariables;
 
 namespace InsuranceManagement.Controllers
@@ -22,17 +23,49 @@ namespace InsuranceManagement.Controllers
         private readonly IRequestService _request;
         private readonly IInsuranceService _service;
         private readonly ILoggingService _logging;
-        GlobalVariables globalVariables;
-        private readonly GlobalVariables _globalVariables;
+        //GlobalVariables globalVariables;
+        //private readonly GlobalVariables _globalVariables;
         private readonly ISessionService _session;
-        public InsuranceTypesController(IInsuranceService service, ISessionService session, ILoggingService logging, ILogger<InsuranceTypesController> logger, IRequestService request)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
+        public InsuranceTypesController(IInsuranceService service, IHttpContextAccessor httpContextAccessor, ISessionService session, ILoggingService logging, ILogger<InsuranceTypesController> logger, IRequestService request)
         {
             _logging = logging;
             _service = service;
             _logger = logger;
             _request = request;
             _session = session;
-            _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
+            _httpContextAccessor = httpContextAccessor;
+            //generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            //if (generalVariable != null)
+            //{
+            //    _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            //}
+            //else
+            //{
+            //    // Handle the case where the JSON string is null
+            //    _globalVariables = new GlobalVariables();
+            //}           // _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
+        }
+        public GlobalVariables GetGlobalVariables()
+        {
+            try
+            {
+                string generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+
+                if (!string.IsNullOrEmpty(generalVariable))
+                {
+                    return JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex.ToString(), "SearchWithParameters");
+            }
+            return new GlobalVariables();
+
+
         }
         // GET: InsuranceType
         public async Task<ActionResult> Index(string message = null)
@@ -63,6 +96,7 @@ namespace InsuranceManagement.Controllers
         // GET: InsuranceType/Create
         public async Task<ActionResult> CreateInsurance()
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
 
             var brokers = await _service.GetAllBroker();
@@ -77,6 +111,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public ActionResult CreateInsurance(InsuranceType collection)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
@@ -97,6 +132,7 @@ namespace InsuranceManagement.Controllers
         // GET: InsuranceType/Edit/5
         public async Task<ActionResult> EditInsurance(int id)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
 
             var brokers = await _service.GetAllBroker();
@@ -122,6 +158,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public ActionResult EditInsurance( InsuranceType collection)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
@@ -152,6 +189,7 @@ namespace InsuranceManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
@@ -177,6 +215,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<ActionResult> CreateInsuranceSubType()
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
 
             var brokers = await _service.GetAllBroker();
@@ -196,6 +235,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task< ActionResult> CreateInsuranceSubType(InsuranceSubType collection)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
@@ -215,6 +255,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<ActionResult> InsuranceSubTypeIndex(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
 
             var getall = await _service.GetAllSubInsuranceType();
@@ -235,6 +276,7 @@ namespace InsuranceManagement.Controllers
         [EncryptionAction]
         public async Task<ActionResult> EditInsuranceSubType(int id)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
 
             var brokers = await _service.GetAllBroker();
@@ -260,6 +302,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public ActionResult EditInsuranceSubType(InsuranceSubType collection)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
@@ -291,6 +334,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> DeleteConfirmedForType(int id)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");

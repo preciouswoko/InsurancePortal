@@ -12,8 +12,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static InsuranceCore.DTO.ReusableVariables;
+using Microsoft.AspNetCore.Http;
+
 
 namespace InsuranceInfrastructure.Services
 {
@@ -26,7 +29,7 @@ namespace InsuranceInfrastructure.Services
         private readonly IGenericRepository<InsuranceType> _typeRepo;
         private readonly IGenericRepository<InsuranceSubType> _subTypeRepo;
         private readonly ISessionService _service;
-        private readonly GlobalVariables _globalVariables;
+      // private readonly GlobalVariables _globalVariables;
         private readonly IEmailService _emailService;
         private AppSettings _appsettings;
         private readonly IT24Service _t24;
@@ -37,6 +40,8 @@ namespace InsuranceInfrastructure.Services
         public readonly IGenericRepository<BrokerSubInsuranceType> _brokerinsuranceSubTypeRepo;
         private readonly IHttpClientService _httpClientService;
         public readonly IAumsService _aum;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
 
         public RequestService(ILoggingService logging, IGenericRepository<Request> reqRepo, IAumsService aum,
             IUtilityService utilityService, IHttpClientService httpClientService,
@@ -44,7 +49,8 @@ namespace InsuranceInfrastructure.Services
             ISessionService service, IEmailService emailService, IOptions<AppSettings> ioptions, IGenericRepository<InsuranceTable> InsuranceTbRepo,
             IT24Service t24, IGenericRepository<Broker> brokerRepo, IGenericRepository<InsuranceSubType> subTypeRepo
             , IGenericRepository<BrokerInsuranceType> brokerinsuranceTypeRepo,
-            IGenericRepository<BrokerSubInsuranceType> brokerinsuranceSubTypeRepo)
+            IGenericRepository<BrokerSubInsuranceType> brokerinsuranceSubTypeRepo
+            , IHttpContextAccessor httpContextAccessor)
         {
             _aum = aum;
             _httpClientService = httpClientService;
@@ -58,12 +64,34 @@ namespace InsuranceInfrastructure.Services
             _typeRepo = typeRepo;
             _service = service;
             _emailService = emailService;
-            _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+           // generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+          //  _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
+          //  _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
             _appsettings = ioptions.Value;
             _t24 = t24;
             _subTypeRepo = subTypeRepo;
             _utilityService = utilityService;
             _oracleDataService = oracleDataService;
+        }
+        public GlobalVariables GetGlobalVariables()
+        {
+            try
+            {
+                string generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+
+                if (!string.IsNullOrEmpty(generalVariable))
+                {
+                    return JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex.ToString(), "SearchWithParameters");
+            }
+            return new GlobalVariables();
+
+           
         }
 
         public async Task<List<RecordReport>> SearchWithParameters(string searchParam, int start, int limit = 0, string filter = "")
@@ -364,6 +392,7 @@ namespace InsuranceInfrastructure.Services
         }
         public async Task<List<Request>> GetAllNeededforAuth()
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             var requests = new List<Request>();
             var insuranceRequests = await _InsuranceTbRepo.GetAllWithPredicate(
                 r => r.Stage == InsuranceStage.New.ToString() && r.RequestByUsername != _globalVariables.userName
@@ -419,6 +448,7 @@ namespace InsuranceInfrastructure.Services
 
         public async Task<string> AuthorizeInsurance(InsuranceTable request)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 var getrequest = await _reqRepo.GetWithIncludeAsync(
@@ -462,8 +492,8 @@ namespace InsuranceInfrastructure.Services
                 request.FEESFTReference = transfer.UnquieId;
                 var credential = new Credential
                 {
-                    T24password = _appsettings.T24password,
-                    T24Username = _appsettings.T24Username
+                    T24password = await _utilityService.AESDecryptString(_appsettings.T24password, default(CancellationToken)),
+                    T24Username = await _utilityService.AESDecryptString(_appsettings.T24Username, default(CancellationToken))
                 };
 
                 var fundtrans = await _t24.FundTransfer(transfer, credential);
@@ -695,6 +725,7 @@ namespace InsuranceInfrastructure.Services
         }
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceRequestsByStageAsync1(string stage)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage && r.CertificateRequestByUsername != _globalVariables.userName);
         }
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceByRequester(string email)
@@ -719,7 +750,7 @@ namespace InsuranceInfrastructure.Services
         }
         public string UpdateInsuranceReq(InsuranceTable request, string comment)
         {
-
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 var update = _InsuranceTbRepo.Update(request);
@@ -946,6 +977,7 @@ namespace InsuranceInfrastructure.Services
         }
         private async Task<List<RecordReport>> ProcessInsuranceReport1(IQueryable<Request> query, int start, int limit, string filter = "")
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 var request = query.OrderByDescending(d => d.ID).Skip(start).Take(limit).ToList();
@@ -1098,6 +1130,7 @@ namespace InsuranceInfrastructure.Services
 
         public async Task<string> AssignUnderwriter(InsuranceTable Insurance, Request request)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (Insurance.RequestType == "Renewal")
@@ -1142,8 +1175,8 @@ namespace InsuranceInfrastructure.Services
                 Insurance.FEESFTReference = transfer.UnquieId;
                 var credential = new Credential
                 {
-                    T24password = _appsettings.T24password,
-                    T24Username = _appsettings.T24Username
+                    T24password = await _utilityService.AESDecryptString(_appsettings.T24password, default(CancellationToken)),
+                    T24Username = await _utilityService.AESDecryptString(_appsettings.T24Username, default(CancellationToken))
                 };
 
                 var fundtrans = await _t24.FundTransfer(transfer, credential);
@@ -1341,6 +1374,7 @@ namespace InsuranceInfrastructure.Services
 
         public async Task<string> CreateRequest(Request request)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1412,6 +1446,7 @@ namespace InsuranceInfrastructure.Services
         }
         public async Task<string> UploadCertificate(CertificateRequest certificateRequest)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             var request = await _InsuranceTbRepo.GetWithPredicate(x => x.RequestID == certificateRequest.insuranceId.ToString());
             if (request == null) return "Not Found";
             try

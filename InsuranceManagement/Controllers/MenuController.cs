@@ -8,6 +8,7 @@ using InsuranceInfrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using static InsuranceCore.DTO.ReusableVariables;
 
 namespace InsuranceManagement.Controllers
@@ -22,12 +23,17 @@ namespace InsuranceManagement.Controllers
         private readonly TemporaryVariables _temporaryVariables;
         private readonly IUtilityService _utils;
         private readonly ISessionService _service;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
         public MenuController(IUtilityService utils,  IHttpContextAccessor hcontext, ISessionService service)
         {
             _utils = utils;
             _service = service;
-            _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
-            _temporaryVariables = _service.Get<TemporaryVariables>("TemporaryVariables");
+            _httpContextAccessor = hcontext;
+            generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+           // _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
+            //_globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+            //_temporaryVariables = _service.Get<TemporaryVariables>("TemporaryVariables");
         }
 
 

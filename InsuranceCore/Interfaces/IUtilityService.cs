@@ -29,5 +29,6 @@ namespace InsuranceCore.Interfaces
         IFormFile ConvertBase64ToIFormFile(string base64String, string contentType, string fileName);
         string ConvertIFormFileToBase64(IFormFile uploadedFile);
         decimal GetDebitValue(string Ofs);
+        Task<string> AESDecryptString(string cipherText, CancellationToken cancellation);
     }
 }

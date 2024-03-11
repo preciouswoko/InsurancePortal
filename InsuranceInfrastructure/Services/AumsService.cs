@@ -12,6 +12,8 @@ using static InsuranceCore.DTO.ReusableVariables;
 using Microsoft.AspNetCore.Http;
 using InsuranceInfrastructure.Helpers;
 using InsuranceCore.Models;
+using Microsoft.AspNetCore.Http;
+
 
 namespace InsuranceInfrastructure.Services
 {
@@ -21,13 +23,14 @@ namespace InsuranceInfrastructure.Services
         private AppSettings _appsettings;
         private readonly ILoggingService _logging;
         private readonly IHttpClientService _httpClientService;
-        private IHttpContextAccessor _hcontext;
+       // private IHttpContextAccessor _hcontext;
         TemporaryVariables temporaryVariables;
         GlobalVariables globalVariables;
         private readonly GlobalVariables _globalVariables;
         private readonly TemporaryVariables _temporaryVariables;
         private readonly ISessionService _service;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
         public AumsService(IHttpClientService httpClientService, ISessionService service,ILoggingService logging, IOptions<AppSettings> ioptions, IUtilityService utilityService,
              IHttpContextAccessor hcontext
             )
@@ -36,10 +39,21 @@ namespace InsuranceInfrastructure.Services
             _utilityService = utilityService;
             _logging = logging;
             _httpClientService = httpClientService;
-            _hcontext = hcontext;
+            _httpContextAccessor = hcontext;
             _service = service;
-            _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
-            _temporaryVariables = _service.Get<TemporaryVariables>("TemporaryVariables");
+            generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            //_globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            if (generalVariable != null)
+            {
+                _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            }
+            else
+            {
+                // Handle the case where the JSON string is null
+                _globalVariables = new GlobalVariables();
+            }
+            //_globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+            //_temporaryVariables = _service.Get<TemporaryVariables>("TemporaryVariables");
         }
 
 
@@ -70,8 +84,11 @@ namespace InsuranceInfrastructure.Services
                 //    globalVariables.ApprovalLevel = 1;
                 //    globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, globalVariables.Permissions);
 
-                //    _service.Set<GlobalVariables>("GlobalVariables", globalVariables);
-                //    _service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
+                //    var session = _httpContextAccessor.HttpContext.Session;
+
+                //    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+                //    //_service.Set<GlobalVariables>("GlobalVariables", globalVariables);
+                //    //_service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
                 //    var LoginResponse = new LoginResponse
                 //    {
                 //        username = username,
@@ -82,21 +99,52 @@ namespace InsuranceInfrastructure.Services
                 //Use the injected IHttpClientService to make HTTP requests with custom headers
                 var response = await _httpClientService.PostAsync<LoginResponse>(
                     _appsettings.AumsSettings.BaseUrl + _appsettings.AumsSettings.Endpoint, loginRequest, customHeaders);
-
+                _logging.LogInformation($"Response From AuthenticateUser = {JsonConvert.SerializeObject(response)} for user{loginRequest.username}", "AuthenticateUser");
                 if (response != null)
                 {
-                    _logging.LogInformation($"Response From AuthenticateUser = {response}", "AuthenticateUser");
 
                     globalVariables.userName = response.username;
                     globalVariables.Permissions = response.featurelist;
-                    globalVariables.userid = response.staffid;
+                    globalVariables.userid = response.username;
+                    // globalVariables.userid = response.staffid;
                     globalVariables.Email = response.email;
                     globalVariables.name = response.name;
                     globalVariables.branchCode = response.branchcodes.Replace("|", "");
                     globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, response.featurelist);
+                    
 
-                    _service.Set<GlobalVariables>("GlobalVariables", globalVariables);
-                    _service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
+                    var session = _httpContextAccessor.HttpContext.Session;
+                    //string existingData = session.GetString("GlobalVariables");
+                    //if (existingData != null/* || existingData != newData*/)
+                    //{
+                    //    GlobalVariables formerdata = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
+
+                    //    if (formerdata.Email == globalVariables.Email && formerdata.userName == globalVariables.userName)
+                    //    {
+                    //        // Remove the old session
+                    //        session.Remove("GlobalVariables");
+
+                    //        // Add the new data to session
+                    //        session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+
+                    //    }
+                    //    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+
+                    //}
+                    //else
+                    //{
+                    //    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+
+                    //}
+                   // session.SetString(globalVariables.userName, JsonConvert.SerializeObject(globalVariables.Permissions));
+
+
+                    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+
+
+
+                    //_service.Set<GlobalVariables>("GlobalVariables", globalVariables);
+                    //_service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
 
                     return response;
                 }

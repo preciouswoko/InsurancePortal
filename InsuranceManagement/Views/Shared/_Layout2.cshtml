@@ -1,17 +1,29 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using InsuranceInfrastructure.Helpers;
+@using Newtonsoft.Json;
 @inject IHttpContextAccessor HttpContextAccessor
-@inject InsuranceCore.Interfaces.ISessionService SessionService
-
 @{
-    InsuranceCore.DTO.ReusableVariables.GlobalVariables global = SessionService.Get<InsuranceCore.DTO.ReusableVariables.GlobalVariables>("GlobalVariables");
-    if (global == null || global.userName == null)
-    {
-        var redirectUrl = Url.Action("LogOff", "Home");
-        <script type="text/javascript">
-            window.location.href = "@redirectUrl";
-        </script>
-    }
+    string globalstring = HttpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+    if (globalstring == null )
+        {
+            var redirectUrl = Url.Action("LogOff", "Home");
+            <script type="text/javascript">
+                window.location.href = "@redirectUrl";
+            </script>
+        }
+
+
+    InsuranceCore.DTO.ReusableVariables.GlobalVariables global = JsonConvert.DeserializeObject<InsuranceCore.DTO.ReusableVariables.GlobalVariables>(globalstring); /*SessionService.Get<InsuranceCore.DTO.ReusableVariables.GlobalVariables>("GlobalVariables");*/
+
+
+    //InsuranceCore.DTO.ReusableVariables.GlobalVariables global = SessionService.Get<InsuranceCore.DTO.ReusableVariables.GlobalVariables>("GlobalVariables");
+    @*if (global == null || global.userName == null)
+        {
+            var redirectUrl = Url.Action("LogOff", "Home");
+            <script type="text/javascript">
+                window.location.href = "@redirectUrl";
+            </script>
+        }*@
 }
 
 
@@ -632,34 +644,34 @@
     </div>
     <!-- Modal for displaying the message1 -->
     @*<div class="container">
-        @{
-            if (ViewData["Error"] != null || ViewData["Message"] != null)
-            {
-                <div class="alert alert-@(ViewData["Error"] != null ? "danger" : "success") alert-dismissible fade show" role="alert" id="dynamic-alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    <div class="d-flex align-items-center">
-                        <i class="fa @(ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle") me-2"></i>
-                        <div>
-                            <h5 class="alert-heading">
+            @{
+                if (ViewData["Error"] != null || ViewData["Message"] != null)
+                {
+                    <div class="alert alert-@(ViewData["Error"] != null ? "danger" : "success") alert-dismissible fade show" role="alert" id="dynamic-alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <div class="d-flex align-items-center">
+                            <i class="fa @(ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle") me-2"></i>
+                            <div>
+                                <h5 class="alert-heading">
+                                    @{if (ViewData["Error"] != null)
+                                        { <span>Error!</span> }
+                                        else
+                                        { <span>Success!</span> }}
+                            </h5>
+                            <p id="alert-message">
                                 @{if (ViewData["Error"] != null)
-                                    { <span>Error!</span> }
-                                    else
-                                    { <span>Success!</span> }}
-                        </h5>
-                        <p id="alert-message">
-                            @{if (ViewData["Error"] != null)
-                                { @ViewData["Error"];
-                            }
-                            else
-                            { @ViewData["Message"];
-                        }}
-                    </p>
+                                    { @ViewData["Error"];
+                                }
+                                else
+                                { @ViewData["Message"];
+                            }}
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
         }
-    </div>*@
+            }
+        </div>*@
 </body>
 </html>
 

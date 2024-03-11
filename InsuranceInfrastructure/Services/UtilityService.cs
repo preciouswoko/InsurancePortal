@@ -5,6 +5,7 @@ using InsuranceInfrastructure.Util;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using SelectPdf;
 using System;
@@ -30,7 +31,7 @@ namespace InsuranceInfrastructure.Services
         public readonly IGenericRepository<AdminRoles> _adminRepo;
         private readonly IGenericRepository<EncryptionData> _encryptiondata;
         private readonly IHostingEnvironment _hostingEnvironment;
-
+       
         public UtilityService(IOptions<AppSettings> ioptions, IHostingEnvironment hostingEnvironment, IGenericRepository<EncryptionData> encryptiondata, ILoggingService logging, IHttpContextAccessor hcontext, IGenericRepository<AdminRoles> adminRepo)
         {
             _appsettings = ioptions.Value;
@@ -47,18 +48,16 @@ namespace InsuranceInfrastructure.Services
         {
             try
             {
-                // var keys = AesEncryptionRepository.ReadUserKey(username);
-                //var getencryption = _encryptiondata.GetById(1);
-
 
                 /// new LogHelper().Info(string.Format("Encrypting Plain Text"));
                 using (Aes myAes = Aes.Create())
                 {
-                    //myAes.Key = Encoding.UTF8.GetBytes(getencryption.Key);
-                    //myAes.IV = Encoding.UTF8.GetBytes(getencryption.Iv);
+                    string key = _appsettings.AumsSettings.AumsKey;
+                    string iv = _appsettings.AumsSettings.AumsIv;
 
-                    myAes.Key = Encoding.UTF8.GetBytes(_secretKey);
-                    myAes.IV = Encoding.UTF8.GetBytes(_iv);
+                    myAes.Key = Encoding.UTF8.GetBytes(key);
+                    myAes.IV = Encoding.UTF8.GetBytes(iv);
+                    // myAes.IV = Convert.FromBase64String(_iv);
 
                     // Encrypt the string to an array of bytes.
                     byte[] encrypted = EncryptStringToBytes_Aes(plaintext, myAes.Key, myAes.IV);
@@ -151,7 +150,7 @@ namespace InsuranceInfrastructure.Services
 
         public async Task<string> GenerateFilePath(IFormFile uploadedFile)
         {
-          
+
             try
             {
                 if (uploadedFile == null || uploadedFile.Length <= 0)
@@ -263,7 +262,7 @@ namespace InsuranceInfrastructure.Services
                     File.Delete(file);
                 }
 
-                return matchingFiles.Length > 0; 
+                return matchingFiles.Length > 0;
 
             }
             catch (Exception ex)
@@ -274,7 +273,7 @@ namespace InsuranceInfrastructure.Services
         }
 
 
-        public decimal CalculateCommission(decimal premiumAmount , int percentage)
+        public decimal CalculateCommission(decimal premiumAmount, int percentage)
         {
             // Calculation logic
             var commission = premiumAmount * (percentage / 100);
@@ -333,12 +332,12 @@ namespace InsuranceInfrastructure.Services
             return result.ToString();
         }
 
-        public  bool IsValidJson(string json)
+        public bool IsValidJson(string json)
         {
             if (string.IsNullOrEmpty(json)) return false;
             return json.Substring(0, 1) == "{" || json.Substring(0, 1) == "[";
         }
-        public  byte[] ConvertToPdf(string mailMessage)
+        public byte[] ConvertToPdf(string mailMessage)
         {
             var _htmltoPdf = new HtmlToPdf();
             _htmltoPdf.Options.ExternalLinksEnabled = true;
@@ -361,7 +360,7 @@ namespace InsuranceInfrastructure.Services
             };
 
         }
-        public  string GetIpAddress(Microsoft.AspNetCore.Http.HttpRequest request)
+        public string GetIpAddress(Microsoft.AspNetCore.Http.HttpRequest request)
         {
             return request.HttpContext.Connection.RemoteIpAddress.ToString();
         }
@@ -413,7 +412,7 @@ namespace InsuranceInfrastructure.Services
 
         //    return menu_string;
         //}
-        public  string ComputeSHA256Hash(string input)
+        public string ComputeSHA256Hash(string input)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
@@ -506,22 +505,47 @@ namespace InsuranceInfrastructure.Services
 
             return codes;
         }
+        public async Task<string> AESDecryptString( string cipherText, CancellationToken cancellation)
+        {
+            // byte[] iv = new byte[16];
+            byte[] buffer = Convert.FromBase64String(cipherText);
 
+            using (Aes aes = Aes.Create())
+            {
+                //var gk = generateCryptokey(key);
+                aes.KeySize = 256;
+                aes.BlockSize = 128;
+                aes.Key = Encoding.UTF8.GetBytes(_secretKey);
+                aes.IV = Encoding.UTF8.GetBytes(_iv);
+
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                        {
+                            return await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                        }
+                    }
+                }
+            }
+        }
         public string Decrypt(string ciphertext, CancellationToken cancellation)
         {
             try
             {
-                // var keys = AesEncryptionRepository.ReadUserKey(username);
-                var getencryption = _encryptiondata.GetById(1);
+
 
                 /// new LogHelper().Info(string.Format("Decrypting Ciphertext"));
                 using (Aes myAes = Aes.Create())
                 {
-                    myAes.Key = Encoding.UTF8.GetBytes(getencryption.Key);
-                    myAes.IV = Encoding.UTF8.GetBytes(getencryption.Iv);
 
-                    //myAes.Key = Encoding.UTF8.GetBytes(_secretKey);
-                    //myAes.IV = Encoding.UTF8.GetBytes(_iv);
+
+                    myAes.Key = Encoding.UTF8.GetBytes(_secretKey);
+                    // myAes.IV = Encoding.UTF8.GetBytes(_iv);
+                    myAes.IV = Convert.FromBase64String(_iv);
 
                     // Convert the ciphertext (hex string) back to byte array
                     byte[] encryptedBytes = StringToByteArray(ciphertext);
@@ -620,8 +644,8 @@ namespace InsuranceInfrastructure.Services
                 //sb.Replace("{msg}", msg);
                 //sb.Replace("{title}", title);
                 //sb.Replace("{name}", name);
-                
-                
+
+
                 //body = sb.ToString();
             }
             catch (Exception ex)
@@ -650,5 +674,7 @@ namespace InsuranceInfrastructure.Services
                 return "Error occurred while converting date to string";
             }
         }
+
+       
     }
 }

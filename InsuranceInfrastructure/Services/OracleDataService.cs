@@ -32,7 +32,7 @@ namespace InsuranceInfrastructure.Services
             {
 
 
-                using (var connection = _context.CreateConnection())
+                using (var connection = await _context.CreateConnection())
                 {
                     connection.Open();
 
@@ -58,7 +58,7 @@ namespace InsuranceInfrastructure.Services
         {
             try
             {
-                using (var connection = _context.CreateConnection())
+                using (var connection = await _context.CreateConnection())
                 {
                     connection.Open();
 
@@ -79,7 +79,7 @@ namespace InsuranceInfrastructure.Services
         {
             try
             {
-                using (var connection = _context.CreateConnection())
+                using (var connection = await _context.CreateConnection())
                 {
                     connection.Open();
 

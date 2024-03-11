@@ -10,6 +10,10 @@ using InsuranceCore.Interfaces;
 using static InsuranceCore.DTO.ReusableVariables;
 using System.Threading;
 using InsuranceInfrastructure.Middlewares;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+using InsuranceInfrastructure.Services;
 
 namespace InsuranceManagement.Controllers
 {
@@ -20,17 +24,51 @@ namespace InsuranceManagement.Controllers
         TemporaryVariables temporaryVariables;
         private readonly IUtilityService _utility;
 
-        GlobalVariables globalVariables;
-        private readonly GlobalVariables _globalVariables;
+        //GlobalVariables globalVariables;
+        //private readonly GlobalVariables _globalVariables;
         private readonly TemporaryVariables _temporaryVariables;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
+        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ISessionService session, IUtilityService utility)
+        public HomeController(ISessionService session, ILogger<HomeController> logger, IUtilityService utility, IHttpContextAccessor httpContextAccessor)
         {
             _session = session;
-            _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
-            _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
+            _logger = logger;
+
+            //generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            //if (generalVariable != null)
+            //{
+            //    _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            //}
+            //else
+            //{
+            //    // Handle the case where the JSON string is null
+            //    _globalVariables = new GlobalVariables();
+            //}           // _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
+            // _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
             //  _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
             _utility = utility;
+        }
+        public GlobalVariables GetGlobalVariables()
+        {
+            try
+            {
+                string generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+
+                if (!string.IsNullOrEmpty(generalVariable))
+                {
+                    return JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex.ToString(), "SearchWithParameters");
+            }
+            return new GlobalVariables();
+
+
         }
         public IActionResult Index()
         {
@@ -44,7 +82,7 @@ namespace InsuranceManagement.Controllers
             var cancellationTokenSource = new CancellationToken();
             CancellationToken cancellationToken = cancellationTokenSource;
             var encrypt = _utility.Encrypt(value, cancellationToken);
-             var decrypt = _utility.Decrypt(encrypt,cancellationToken);
+             var decrypt =  _utility.Decrypt(encrypt,cancellationToken);
 
             TempData["ResultMessage"] = encrypt;
 
@@ -81,6 +119,17 @@ namespace InsuranceManagement.Controllers
         [HttpGet]
         public IActionResult LogOff()
         {
+            //  _httpContextAccessor.HttpContext.Session.Remove("GlobalVariables");
+            var existingData = GetGlobalVariables();
+
+            if (existingData != null)
+            {
+             string   userId = existingData.userid;
+              //  UserSessionManager.RemoveUserSession(userId);
+
+            }
+
+
             HttpContext.Session.Clear();
             _session.Clear("GlobalVariables");
             return RedirectToAction("Login", "Auth");

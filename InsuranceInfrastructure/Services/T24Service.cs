@@ -78,8 +78,8 @@ namespace InsuranceInfrastructure.Services
         public async Task<AccountEnquiry> NameEnquiry(string AccountNo, CancellationToken cancellation)
         {
             // ... Existing logic ...
-            string username = _appsettings.UsernameAuthAD;
-            string password = _appsettings.PasswordAuthAD;
+            string username = await _utilityService.AESDecryptString(_appsettings.UsernameAuthAD, default(CancellationToken));
+            string password = await _utilityService.AESDecryptString(_appsettings.PasswordAuthAD, default(CancellationToken));
             string baseurl = _appsettings.T24WsEndpoint;
             string secretKey = _appsettings.UserSecretKey;
             var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -106,8 +106,8 @@ namespace InsuranceInfrastructure.Services
         }
         public async Task<ApiResponse<AccountEnquiryResponse>> AccountEnquiry(string AccountNo, CancellationToken cancellation)
         {
-            var T24username = _appsettings.T24Username;
-            var T24password = _appsettings.T24password;
+            var T24username = await _utilityService.AESDecryptString(_appsettings.T24Username, default(CancellationToken));
+            var T24password = await _utilityService.AESDecryptString(_appsettings.T24password, default(CancellationToken));
 
             String OFS = string.Format("ENQUIRY.SELECT,,{0}/{1}/,ACCOUNTENQUIRY,@ID:EQ", T24username, T24password);
             OFS += "=" + AccountNo;
@@ -175,8 +175,8 @@ namespace InsuranceInfrastructure.Services
                 //FUNDS.TRANSFER,PHB.GENERIC.ACTR/R/PROCESS//,ftid
                 String OFS = "FUNDS.TRANSFER,PHB.GENERIC.ACTR/R/PROCESS,";
                
-                var T24username = _appsettings.T24Username;
-                var T24password = _appsettings.T24password;
+                var T24username = await _utilityService.AESDecryptString(_appsettings.T24Username, default(CancellationToken));
+                var T24password = await _utilityService.AESDecryptString(_appsettings.T24password, default(CancellationToken));
 
                 OFS += string.Format("{0}/{1}/,", T24username, T24password);
                 //OFS += "MTOUSER01" + "/" + "Ab123456" + "/";
@@ -355,8 +355,8 @@ namespace InsuranceInfrastructure.Services
         public async Task<ApiResponse<TransferResponse>> FundTransfer1(TransactionLog transaction, CancellationToken cancellation)
         {
            
-            var T24username = _appsettings.T24Username;
-            var T24password = _appsettings.T24password;
+            var T24username = await _utilityService.AESDecryptString(_appsettings.T24Username, default(CancellationToken));
+            var T24password = await _utilityService.AESDecryptString(_appsettings.T24password, default(CancellationToken));
             TransferResponse returnObj = new TransferResponse();
 
             String OFS = "";
@@ -536,7 +536,7 @@ namespace InsuranceInfrastructure.Services
 
             {
 
-                _logging.LogError(ex.ToString());
+                _logging.LogError(ex.ToString(), "PostofsAsync");
 
                 throw;
 
@@ -645,8 +645,8 @@ namespace InsuranceInfrastructure.Services
             HttpContent content = new StringContent(contentString, Encoding.UTF8, "application/json");
 
             string POST_URL = BASEURL + url;
-            string username = _appsettings.UsernameAuthAD;
-            string password = _appsettings.PasswordAuthAD;
+            string username = await _utilityService.AESDecryptString(_appsettings.UsernameAuthAD, default(CancellationToken));
+            string password = await _utilityService.AESDecryptString(_appsettings.PasswordAuthAD, default(CancellationToken));
             string baseurl = _appsettings.T24WsEndpoint;
             string secretKey = _appsettings.UserSecretKey;
             var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -695,7 +695,7 @@ namespace InsuranceInfrastructure.Services
 
             {
 
-                _logging.LogError(ex.ToString());
+                _logging.LogError(ex.ToString(), "PostRequestAsync");
 
                 throw;
 

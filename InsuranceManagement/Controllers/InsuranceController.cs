@@ -20,6 +20,8 @@ using InsuranceManagement.ViewModels;
 using InsuranceInfrastructure.Middlewares;
 using System.Text;
 using CsvHelper;
+using Microsoft.AspNetCore.Http;
+
 
 namespace InsuranceManagement.Controllers
 {
@@ -33,12 +35,16 @@ namespace InsuranceManagement.Controllers
         private readonly IHttpClientService _httpClientService;
         private IHttpContextAccessor _hcontext;
         TemporaryVariables temporaryVariables;
-        GlobalVariables globalVariables;
-        private readonly GlobalVariables _globalVariables;
+        //GlobalVariables globalVariables;
+        //private readonly GlobalVariables _globalVariables;
         private readonly TemporaryVariables _temporaryVariables;
         private readonly ISessionService _session;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
+
+
         public InsuranceController(IHttpClientService httpClientService, IHttpContextAccessor hcontext,/* ILogger<InsuranceController> logger,*/
-            ISessionService session, IInsuranceService service, ILoggingService logging, IRequestService reqservice)
+            ISessionService session, IInsuranceService service, ILoggingService logging, IRequestService reqservice, IHttpContextAccessor httpContextAccessor)
         {
             //_logger = logger;
             _logging = logging;
@@ -47,12 +53,45 @@ namespace InsuranceManagement.Controllers
             _httpClientService = httpClientService;
             _hcontext = hcontext;
             _session = session;
-            _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
-            _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
+            //generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            //if (generalVariable != null)
+            //{
+            //    _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            //}
+            //else
+            //{
+            //    // Handle the case where the JSON string is null
+            //    _globalVariables = new GlobalVariables();
+            //}           // _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
+                        // _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
+            _httpContextAccessor = httpContextAccessor;
+        }
+        public GlobalVariables GetGlobalVariables()
+        {
+            try
+            {
+                string generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+
+                if (!string.IsNullOrEmpty(generalVariable))
+                {
+                    return JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _logging.LogError(ex.ToString(), "SearchWithParameters");
+            }
+            return new GlobalVariables();
+
+
         }
         public IActionResult Index()
         {
-            _session.Set<GlobalVariables>("GlobalVariables", globalVariables);
+            GlobalVariables _globalVariables = GetGlobalVariables();
+            //var session = _httpContextAccessor.HttpContext.Session;
+            //session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+            //  _session.Set<GlobalVariables>("GlobalVariables", globalVariables);
 
             return View();
         }
@@ -153,6 +192,7 @@ namespace InsuranceManagement.Controllers
         }
         public async Task<IActionResult> AuthorizeRequest(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.AUR))) return RedirectToAction("Unauthorized");
@@ -229,6 +269,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> AuthorizeRequest(string requestId, string comment, string approvalStatus)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 string message = "";
@@ -392,6 +433,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<ActionResult> GetAllRequest(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 var statusList = Enum.GetValues(typeof(CommentStatus))
@@ -471,6 +513,7 @@ namespace InsuranceManagement.Controllers
         [HttpPost]
         public async Task<ActionResult> ModifyRequest(long requestId,  decimal premium, string comment, string Status)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 string message = "";
@@ -614,6 +657,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<IActionResult> InsuranceCertificate(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.UIC))) return RedirectToAction("Unauthorized");
 
             try
@@ -688,6 +732,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> UploadCertificate(CertificateRequest model)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 string text = ""; 
@@ -733,6 +778,7 @@ namespace InsuranceManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignContractID(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ACI))) return RedirectToAction("Unauthorized");
@@ -831,6 +877,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> AssignContractID(Request model)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -946,6 +993,7 @@ namespace InsuranceManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignUnderwriter(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1064,6 +1112,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> AssignUnderwriter(long requestId, int selectedUnderwriter, decimal premium, string comment, string approvalStatus)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1210,6 +1259,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<IActionResult> Review(string message = null)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1318,6 +1368,7 @@ namespace InsuranceManagement.Controllers
         [ShowMessage("ResultMessage")]
         public async Task<IActionResult> ReviewCertificateUpload2(ReviewCertificateViewModel model)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1406,6 +1457,7 @@ namespace InsuranceManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateRequest1()
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
 
@@ -1467,6 +1519,7 @@ namespace InsuranceManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRequest1(InsuranceRequestViewModel model)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.INR))) return RedirectToAction("Unauthorized");
 
             try

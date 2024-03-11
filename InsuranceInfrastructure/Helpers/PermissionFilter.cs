@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static InsuranceCore.DTO.ReusableVariables;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace InsuranceInfrastructure.Helpers
 {
@@ -17,14 +19,17 @@ namespace InsuranceInfrastructure.Helpers
         private readonly ILogger<PermissionFilter> _logger;
         private readonly string[] _requiredPermissions;
         private GlobalVariables globalVariables;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
 
-
-        public PermissionFilter(ISessionService sessionService, ILogger<PermissionFilter> logger, params string[] requiredPermissions)
+        public PermissionFilter(ISessionService sessionService, IHttpContextAccessor httpContextAccessor, ILogger<PermissionFilter> logger, params string[] requiredPermissions)
         {
             _sessionService = sessionService;
             _logger = logger;
             _requiredPermissions = requiredPermissions;
-            globalVariables = _sessionService.Get<GlobalVariables>("GlobalVariables");
+            generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
+          //  globalVariables = _sessionService.Get<GlobalVariables>("GlobalVariables");
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

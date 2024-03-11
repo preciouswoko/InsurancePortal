@@ -9,6 +9,7 @@ using InsuranceInfrastructure.Data;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using static InsuranceCore.DTO.ReusableVariables;
+using Microsoft.AspNetCore.Http;
 
 namespace InsuranceInfrastructure.Helpers
 {
@@ -19,14 +20,18 @@ namespace InsuranceInfrastructure.Helpers
         private readonly ISessionService _service;
         private readonly ILoggingService _logging;
         private readonly GlobalVariables _globalVariables;
-
-        public AuditFilterAttribute(ApplicationDbContext db, IUtilityService utils, ISessionService service, ILoggingService logging)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable;
+        public AuditFilterAttribute(ApplicationDbContext db, IUtilityService utils, ISessionService service, ILoggingService logging, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _utils = utils;
             _service = service;
             _logging = logging;
-            _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+           // _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+            _httpContextAccessor = httpContextAccessor;
+            generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
 
         }
 
@@ -38,7 +43,9 @@ namespace InsuranceInfrastructure.Helpers
             Guid auditStatusId = Guid.NewGuid();
 
             // Store in session
-            _service.Set("auditStatusId", auditStatusId);
+            var session = _httpContextAccessor.HttpContext.Session;
+            session.SetString("auditStatusId", auditStatusId.ToString());
+           // _service.Set("auditStatusId", auditStatusId);
             var request = filterContext.HttpContext.Request;
             string controller = (string)filterContext.RouteData.Values["controller"];
             string action = (string)filterContext.RouteData.Values["action"];
@@ -96,10 +103,12 @@ namespace InsuranceInfrastructure.Helpers
         public void OnActionExecuted(ActionExecutedContext context)
         {
             // Retrieve from session
-            Guid auditStatusId = _service.Get<Guid>("auditStatusId");
-
+            //Guid auditStatusId = _service.Get<Guid>("auditStatusId");
+            string status = _httpContextAccessor.HttpContext.Session.GetString("auditStatusId");
+          //  Guid auditStatusId = status;
+            //_globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable);
             // Update status
-            var audit = _db.AdminAuditLogs.FirstOrDefault(x => x.AuditStatusId == auditStatusId);
+            var audit = _db.AdminAuditLogs.FirstOrDefault(x => x.AuditStatusId.ToString() == status);
             try
             {
               

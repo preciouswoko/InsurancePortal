@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static InsuranceCore.DTO.ReusableVariables;
+using Microsoft.AspNetCore.Http;
 
 namespace InsuranceCore.Implementations
 {
@@ -35,11 +36,14 @@ namespace InsuranceCore.Implementations
         public readonly IGenericRepository<BrokerSubInsuranceType> _brokerinsuranceSubTypeRepo;
         public readonly IUtilityService _utilityService;
         private readonly ISessionService _service;
-        private readonly GlobalVariables _globalVariables;
+       // private readonly GlobalVariables _globalVariables;
         private readonly IOracleDataService _oracleDataService;
         private readonly IT24Service _t24;
         public readonly IGenericRepository<FundTransferLookUp> _fundRepo;
         public readonly IAumsService _aum;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string generalVariable = null;
+
         public InsuranceService(IGenericRepository<Comments> commRepo, IGenericRepository<Request> reqRepo,
             IGenericRepository<InsuranceTable> InsuranceTbRepo,
             IHttpClientService clientService, ILoggingService logging,
@@ -53,7 +57,7 @@ namespace InsuranceCore.Implementations
             IConfiguration configuration, IOracleDataService oracleDataService,
             IT24Service t24, IGenericRepository<FundTransferLookUp> fundRepo,
             IGenericRepository<BrokerInsuranceType> brokerinsuranceTypeRepo,
-            IGenericRepository<BrokerSubInsuranceType> brokerinsuranceSubTypeRepo
+            IGenericRepository<BrokerSubInsuranceType> brokerinsuranceSubTypeRepo, IHttpContextAccessor httpContextAccessor
             )
         {
             _aum = aum;
@@ -69,7 +73,16 @@ namespace InsuranceCore.Implementations
             _insuranceSubTypeRepo = insuranceSubTypeRepo;
             _utilityService = utilityService;
             _service = service;
-            _globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
+            //generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
+            //if (generalVariable != null)
+            //{
+            //    _globalVariables = JsonConvert.DeserializeObject<GlobalVariables>(generalVariable) ?? new GlobalVariables();
+            //}
+            //else
+            //{
+            //    // Handle the case where the JSON string is null
+            //    _globalVariables = new GlobalVariables();
+            //}            //_globalVariables = _service.Get<GlobalVariables>("GlobalVariables");
             _oracleDataService = oracleDataService;
             _t24 = t24;
             _InsuranceTbRepo = InsuranceTbRepo;
@@ -327,7 +340,7 @@ namespace InsuranceCore.Implementations
             }
             catch (Exception ex)
             {
-                _logging.LogFatal(ex.ToString(), "AssignUnderwriter");
+                _logging.LogFatal(ex.ToString(), $"AssignUnderwriter");
                 Insurance.ErrorMessage = ex.InnerException.ToString();
                 var updateRepuest = _InsuranceTbRepo.Update(Insurance);
                 return "UnSuccessFul";

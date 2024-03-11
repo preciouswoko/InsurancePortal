@@ -42,6 +42,8 @@ namespace InsuranceInfrastructure.Util
         public string Username { get; set; }
         public string Password { get; set; }
         public string Endpoint { get; set; }
+        public string AumsIv { get; set; }
+        public string AumsKey { get; set; }
     }
     public class FileUploadSettings
     {

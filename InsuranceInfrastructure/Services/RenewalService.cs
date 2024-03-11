@@ -87,6 +87,7 @@ namespace InsuranceInfrastructure.Services
                 var _t24 = scopedServiceProvider.GetRequiredService<IT24Service>();
                 var _logger = scopedServiceProvider.GetRequiredService<ILoggingService>();
                 var _oracle = scopedServiceProvider.GetRequiredService<IOracleDataService>();
+                var _utility = scopedServiceProvider.GetRequiredService<IUtilityService>();
                 try {
                     var getrequest = await requestRepository.GetWithIncludeAsync(
                    x => (x.RequestID == request.RequestID && x.Status != CommentStatus.Closed.ToString()),
@@ -135,14 +136,14 @@ namespace InsuranceInfrastructure.Services
                     request.FEESFTReference = transfer.UnquieId;
                     var credential1 = new Credential
                     {
-                        T24password = _appsettings.T24password2,
-                        T24Username = _appsettings.T24Username2
+                        T24password = await _utility.AESDecryptString(_appsettings.T24password2, default(CancellationToken)),
+                        T24Username = await _utility.AESDecryptString(_appsettings.T24Username2, default(CancellationToken))
                     };
                     var fundtrans = await _t24.FundTransfer(transfer, credential1);
                     var credential = new Credential
                     {
-                        T24password = _appsettings.T24password,
-                        T24Username = _appsettings.T24Username
+                        T24password = await _utility.AESDecryptString(_appsettings.T24password, default(CancellationToken)),
+                        T24Username = await _utility.AESDecryptString(_appsettings.T24Username, default(CancellationToken))
                     };
                     _logger.LogInformation(fundtrans.ToString(), $"FundTransfer to Broker Account ={getrequest.Broker.AccountNumber}");
                     var requery = await _oracle.RequeryFTUniqueId(transfer.UnquieId);

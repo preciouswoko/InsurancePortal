@@ -100,6 +100,8 @@ namespace InsuranceManagement.Controllers
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
 
             var brokers = await _service.GetAllBroker();
+           // _logger.LogInformation($"{_globalVariables.name} requested list of broker {JsonConvert.SerializeObject(brokers)} ", "CreateInsurance");
+
             ViewBag.BrokerId = new SelectList(brokers.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.BrokerName }), "Value", "Text");
 
             return View();
@@ -117,7 +119,10 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
 
                 // TODO: Add insert logic here
+                _logger.LogInformation($"{_globalVariables.name} created insurance type {JsonConvert.SerializeObject(collection)} ", "CreateInsurance");
                 var add = _service.CreateInsuranceType(collection);
+               // _logger.LogInformation($"{_globalVariables.name} created insurance {JsonConvert.SerializeObject(collection)} : result {add} ", "CreateInsurance");
+
                 TempData["ResultMessage"] = " Successfully Created InsuranceType";
                 return RedirectToAction(nameof(Index), new { message = " Successfully Created InsuranceType" });
             }
@@ -164,9 +169,12 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOI))) return RedirectToAction("Unauthorized", "Insurance");
 
                 collection.Status = _request.GetEnumValueByIndex(Convert.ToInt32(collection.Status) + 1).ToString();
+                _logger.LogInformation($"{_globalVariables.name} edited insurance type {JsonConvert.SerializeObject(collection)} ", "EditInsurance");
 
                 // TODO: Add update logic here
                 var update = _service.UpdateInsuranceType(collection);
+               // _logger.LogInformation($"{_globalVariables.name} edited insurance {JsonConvert.SerializeObject(collection)} : result {update} ", "EditInsurance");
+
                 TempData["ResultMessage"] = "Successfully Updated InsuranceType";
                 return RedirectToAction(nameof(Index), new { message = " Successfully Updated InsuranceType" });
             }
@@ -239,9 +247,12 @@ namespace InsuranceManagement.Controllers
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
+                _logger.LogInformation($"{_globalVariables.name} created insurance Sub type {JsonConvert.SerializeObject(collection)} ", "CreateInsuranceSubType");
 
                 // TODO: Add insert logic here
                 var add = await _service.CreateInsuranceSubType(collection);
+               // _logger.LogInformation($"{_globalVariables.name} created insurance sub type {JsonConvert.SerializeObject(collection)} : result {add} ", "CreateInsuranceSubType");
+
                 TempData["ResultMessage"] = "Successfully Created InsuranceSubType";
                 return RedirectToAction(nameof(InsuranceSubTypeIndex), new { message = " Successfully Created InsuranceSubType" });
 
@@ -308,9 +319,12 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
 
                 collection.Status = _request.GetEnumValueByIndex(Convert.ToInt32(collection.Status) + 1).ToString();
+                _logger.LogInformation($"{_globalVariables.name} edited insurance sub type {JsonConvert.SerializeObject(collection)} ", "EditInsuranceSubType");
 
                 // TODO: Add update logic here
                 var update = _service.UpdateInsuranceSubType(collection);
+               // _logger.LogInformation($"{_globalVariables.name} edited insurance sub type {JsonConvert.SerializeObject(collection)} : result {update} ", "EditInsuranceSubType");
+
                 TempData["ResultMessage"] = "Successfully Edited InsuranceSubType";
                // return RedirectToAction(nameof(Index));
                 return RedirectToAction(nameof(InsuranceSubTypeIndex), new { message = " Successfully Edited InsuranceSubType" });
@@ -340,6 +354,8 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LIS))) return RedirectToAction("Unauthorized", "Insurance");
 
                 var InsuranceSubtype = await _service.GetInsuranceSubTypebyId(id);
+              //  _logger.LogInformation($"{_globalVariables.name} deleted insurance sub type {JsonConvert.SerializeObject(InsuranceSubtype)} ", "DeletedInsuranceSubType");
+
                 if (InsuranceSubtype == null)
                 {
                     return NotFound();

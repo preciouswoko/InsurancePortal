@@ -72,6 +72,8 @@ namespace InsuranceInfrastructure.Services
             _subTypeRepo = subTypeRepo;
             _utilityService = utilityService;
             _oracleDataService = oracleDataService;
+            _httpContextAccessor = httpContextAccessor;
+
         }
         public GlobalVariables GetGlobalVariables()
         {
@@ -451,6 +453,8 @@ namespace InsuranceInfrastructure.Services
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
+                _logger.LogInformation($"User{_globalVariables.name} Enter AuthorizeRequest at{DateTime.Now}");
+
                 var getrequest = await _reqRepo.GetWithIncludeAsync(
                     x => (x.RequestID == request.RequestID &&  x.Status != CommentStatus.Closed.ToString()/*x.Status == BrokerStatus.Active.ToString()*/),
                     x => x.Broker,
@@ -600,6 +604,7 @@ namespace InsuranceInfrastructure.Services
 
                     _emailService.SmtpSendMail(getrequest.Broker.EmailAddress, body, emailSubjectRequest);
                     // _emailService.SmtpSendMail(broker.EmailAddress, $"Payment Request for  Insurance was successful. see detail{request.CustomerName}", "Payment on Insurance");
+                    _logger.LogInformation($"User{_globalVariables.name} Completed AuthorizeRequest at{DateTime.Now}");
 
                     return "Successfully";
                 }
@@ -622,6 +627,7 @@ namespace InsuranceInfrastructure.Services
                     string body = _utilityService.BuildEmailTemplate(_globalVariables.name, "Debit Notification For Insurance  Process", mailTemplate);
 
                     _emailService.SmtpSendMail(_globalVariables.Email, body, "Debit Notification For Insurance  Process");
+                    _logger.LogInformation($"User{_globalVariables.name} Completed AuthorizeRequest at{DateTime.Now} but fundtransfer failed with message {fundtrans.ResponseMessage}");
 
                     // _emailService.SmtpSendMail(request.CustomerEmail, mailTemplate", "Debit Notification For Insurance  Process");
                 }
@@ -629,7 +635,8 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogFatal(ex.ToString(), "AuthorizeRequest");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "AuthorizeRequest");
+
                 request.ErrorMessage = ex.InnerException.ToString();
                 var updateRepuest = _InsuranceTbRepo.Update(request);
                 return "UnSuccessful";
@@ -753,6 +760,8 @@ namespace InsuranceInfrastructure.Services
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
+                _logger.LogInformation($"User{_globalVariables.name} Eneter UpdateInsuranceReq at{DateTime.Now}");
+
                 var update = _InsuranceTbRepo.Update(request);
                 if (update == false) return "UnSuccessfully";
                 string emailBody =
@@ -765,13 +774,15 @@ namespace InsuranceInfrastructure.Services
                 string body = _utilityService.BuildEmailTemplate(request.CertificateRequestByName, "Certificate Upload", emailBody);
 
                 _emailService.SmtpSendMail(request.CertificateRequestByemail, body, "Update On Certificate Upload", _appsettings.SourceEmail);
+                _logger.LogInformation($"User{_globalVariables.name} Completed UpdateInsuranceReq at{DateTime.Now}");
 
                 return "Successfully";
 
             }
             catch (Exception ex)
             {
-                _logger.LogFatal(ex.ToString(), "UpdateCertificate");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "UpdateInsuranceReq");
+
                 return "Error";
             }
 
@@ -970,6 +981,7 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
+
                 _logger.LogError(ex.ToString(), "ReportReport");
                 return null;
             }
@@ -1122,7 +1134,8 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString(), "ProcessInsuranceReport");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "ProcessInsuranceReport");
+
                 return null;
             }
 
@@ -1133,6 +1146,8 @@ namespace InsuranceInfrastructure.Services
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
+                _logger.LogInformation($"User{_globalVariables.name} Entered Assign Underwriter at {DateTime.Now}");
+
                 if (Insurance.RequestType == "Renewal")
                 {
                     Insurance.Stage = InsuranceStage.CertificateUploaded.ToString();
@@ -1293,7 +1308,8 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogFatal(ex.ToString(), "AuthorizeRequest");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "AuthorizeRequest");
+
                 Insurance.ErrorMessage = ex.InnerException.ToString();
                 var updateRepuest = _InsuranceTbRepo.Update(Insurance);
                 return "UnSuccessful";
@@ -1315,6 +1331,7 @@ namespace InsuranceInfrastructure.Services
         }
         public async Task<DataTablesResponse> FetchInsurancesForDataTableAsync(DataTablesRequest request)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 var filteredPurchases = new List<RecordReport>();
@@ -1354,8 +1371,8 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "FetchInsurancesForDataTableAsync");
 
-                _logger.LogError(ex.ToString(), "FetchInsurancesForDataTableAsync");
                 throw;
             }
         }
@@ -1377,6 +1394,7 @@ namespace InsuranceInfrastructure.Services
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
+                _logger.LogInformation($"User{_globalVariables.name} Created Request at{DateTime.Now}");
 
                 //request.Branchcode = _globalVariables.branchCode;
                 string dateTimeString = DateTime.Now.ToString("yyyy/MM/ddHHmmss");
@@ -1431,6 +1449,8 @@ namespace InsuranceInfrastructure.Services
                     string body = _utilityService.BuildEmailTemplate(authname, " Authorize New Insurance Request", emailBodyRequest);
 
                     _emailService.SmtpSendMail(authEmail, body, "Authorize New Insurance Request");
+                    _logger.LogInformation($"User{_globalVariables.name} Completed CreateRequest at {DateTime.Now}");
+
                     return "Successfully";
                 }
                 return "UnSuccessful";
@@ -1439,7 +1459,8 @@ namespace InsuranceInfrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString(), "CreateRequest");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "CreateRequest");
+
                 return "Error";
             }
 
@@ -1447,6 +1468,8 @@ namespace InsuranceInfrastructure.Services
         public async Task<string> UploadCertificate(CertificateRequest certificateRequest)
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
+            _logger.LogInformation($"User{_globalVariables.name} Uploaded Certificate at{DateTime.Now}");
+
             var request = await _InsuranceTbRepo.GetWithPredicate(x => x.RequestID == certificateRequest.insuranceId.ToString());
             if (request == null) return "Not Found";
             try
@@ -1516,13 +1539,15 @@ namespace InsuranceInfrastructure.Services
                     string body = _utilityService.BuildEmailTemplate(authname, " Authorize New Insurance Request", emailBodyRequest);
 
                     _emailService.SmtpSendMail(authEmail, body, "Authorize New Insurance Request");
+                    _logger.LogInformation($"User{_globalVariables.name} Completed Uploaded Certificate at {DateTime.Now}");
+
                     return "Successfully";
                 }
                 return "UnSuccessful";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString(), "UploadCertificate");
+                _logger.LogError($"User{_globalVariables.name}: Got Error {ex.ToString()}", "UploadCertificate");
                 request.ErrorMessage = ex.InnerException.ToString();
                 var updateRepuest = _InsuranceTbRepo.Update(request);
                 return "UnSuccessFul";

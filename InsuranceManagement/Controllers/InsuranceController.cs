@@ -53,6 +53,7 @@ namespace InsuranceManagement.Controllers
             _httpClientService = httpClientService;
             _hcontext = hcontext;
             _session = session;
+
             //generalVariable = _httpContextAccessor.HttpContext.Session.GetString("GlobalVariables");
             //if (generalVariable != null)
             //{
@@ -63,7 +64,7 @@ namespace InsuranceManagement.Controllers
             //    // Handle the case where the JSON string is null
             //    _globalVariables = new GlobalVariables();
             //}           // _globalVariables = _session.Get<GlobalVariables>("GlobalVariables");
-                        // _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
+            // _temporaryVariables = _session.Get<TemporaryVariables>("TemporaryVariables");
             _httpContextAccessor = httpContextAccessor;
         }
         public GlobalVariables GetGlobalVariables()
@@ -97,7 +98,10 @@ namespace InsuranceManagement.Controllers
         }
         public async Task<IActionResult> Report()
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
+
             var reports = await _reqservice.ReportReport();
+          //  _logging.LogInformation($"{_globalVariables.name} requested insurance report {JsonConvert.SerializeObject(reports)} ", "Report");
 
             return View(reports);
         }
@@ -127,7 +131,7 @@ namespace InsuranceManagement.Controllers
             //    CustomerEmail = "sample@example.com"
             //};
             if (getaccountdetail == null) return null;
-            _logging.LogInformation(JsonConvert.SerializeObject(getaccountdetail), "FetchAccountDetails");
+           // _logging.LogInformation(JsonConvert.SerializeObject(getaccountdetail), "FetchAccountDetails");
 
             return Json(getaccountdetail);
         }
@@ -153,7 +157,7 @@ namespace InsuranceManagement.Controllers
             {
                 var json = await _reqservice.FetchInsurancesForDataTableAsync(request);
                 //var test = JsonConvert.SerializeObject(json);
-                // _logging.LogInformation($"Received JSON data: {JsonConvert.SerializeObject(json.data)}", "FetchInsurances");
+               //  _logging.LogInformation($"Received JSON data: {JsonConvert.SerializeObject(json.data)}", "FetchInsurances");
                 return Json(json);
             }
             catch (Exception ex)
@@ -198,7 +202,7 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.AUR))) return RedirectToAction("Unauthorized");
                 var getAll = await _reqservice.GetAllNeededforAuth();
                 //await _reqservice.GetAllNeeded(r => r.Stage == InsuranceStatus.New.ToString()  &&  r.UserId != _globalVariables.userid);
-                _logging.LogInformation(getAll.Count().ToString(), "AuthorizeRequest");
+               // _logging.LogInformation(getAll.Count().ToString(), "AuthorizeRequest");
 
                 if (getAll == null)
                 {
@@ -274,12 +278,14 @@ namespace InsuranceManagement.Controllers
             {
                 string message = "";
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.AUR))) return RedirectToAction("Unauthorized");
-                _logging.LogInformation($"Inside AuthorizeRequest for this request{requestId}", "Post _AuthorizeRequest");
+              //  _logging.LogInformation($"Inside AuthorizeRequest for this user {_globalVariables.name} and request{requestId} at {DateTime.Now}", "Post _AuthorizeRequest");
 
                 // Handle form submit logic
                 var getRequest = await _service.Getrequest(requestId.ToString());
 
                 var getinsurance = await _service.GetInsurancereq(requestId);
+              //  _logging.LogInformation($"{_globalVariables.name} requested insurance  {JsonConvert.SerializeObject(getinsurance)} at {DateTime.Now} ", "Post _AuthorizeRequest");
+
                 //_service.GetInsuranceRequest(requestId);
                 if (getinsurance.RequestByemail == _globalVariables.Email) return RedirectToAction("Unauthorized"); //return Unauthorized();
                 getinsurance.AuthorizedByEmail = _globalVariables.Email;
@@ -305,6 +311,8 @@ namespace InsuranceManagement.Controllers
                     string name = getinsurance.RequestByName;
                     string email = getinsurance.RequestByemail;
                     var update = _reqservice.UpdateRequest(getRequest, getinsurance, email, name, comment);
+                 //   _logging.LogInformation($"{_globalVariables.name} decline insurance request {JsonConvert.SerializeObject(getinsurance)} at {DateTime.Now} ", "Post _AuthorizeRequest");
+
                     if (update.StartsWith("Success"))
                     {
                          message = update + " Rejected  Record";
@@ -322,6 +330,8 @@ namespace InsuranceManagement.Controllers
 
 
                     var authorize = await _service.AuthorizeRequest(getinsurance);
+                  //  _logging.LogInformation($"{_globalVariables.name} approved insurance request {JsonConvert.SerializeObject(getinsurance)} at {DateTime.Now} ", "Post _AuthorizeRequest");
+
                     if (authorize.StartsWith("Success"))
                     {
                         message = authorize + " Approved  Record";
@@ -450,7 +460,7 @@ namespace InsuranceManagement.Controllers
 
                 var records = new List<RequestReviewViewModel>();
                 var getrecord = await _reqservice.GetInsuranceByRequester(_globalVariables.Email);
-                _logging.LogInformation(getrecord.Count().ToString(), "GetAllRequest");
+               // _logging.LogInformation(getrecord.Count().ToString(), "GetAllRequest");
 
                 if (getrecord == null)
                 {
@@ -517,7 +527,7 @@ namespace InsuranceManagement.Controllers
             try
             {
                 string message = "";
-                _logging.LogInformation($"Inside ModifyRequest for this request{requestId}", "Post ModifyRequest");
+                //_logging.LogInformation($"Inside ModifyRequest for this request{requestId}", "Post ModifyRequest");
 
                 var approvalStatus = _reqservice.GetEnumValueByIndex1(Convert.ToInt32(Status) + 1).ToString();
 
@@ -616,8 +626,11 @@ namespace InsuranceManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetInsuranceSubTypesByInsuranceType(int insuranceTypeId)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
+
             // Retrieve InsuranceSubTypes based on the selected InsuranceTypeId
             var insuranceSubTypes = await _service.GetInsuranceSubTypesByInsuranceType(insuranceTypeId);
+          //  _logging.LogInformation($"{_globalVariables.name} requested Insurance SubTypes ByInsuranceType  {JsonConvert.SerializeObject(insuranceSubTypes)} at {DateTime.Now} ", "GetInsuranceSubTypesByInsuranceType");
 
             // Convert InsuranceSubTypes to a SelectList
             var selectList = new SelectList(insuranceSubTypes, "Value", "Text");
@@ -629,9 +642,14 @@ namespace InsuranceManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRequest(Request request)
         {
+            GlobalVariables _globalVariables = GetGlobalVariables();
+
             //if (ModelState.IsValid)
             //{
+            _logging.LogInformation($"{_globalVariables.name} created  Insurance request{JsonConvert.SerializeObject(request)} ", "CreateRequest");
+
             var isSuccess = await _reqservice.CreateRequest(request);
+           // _logging.LogInformation($"{_globalVariables.name} created insurance request {JsonConvert.SerializeObject(request)} : result is {isSuccess} at {DateTime.Now} ", "CreateRequest");
 
             if (isSuccess == "Successful")
             {
@@ -664,8 +682,9 @@ namespace InsuranceManagement.Controllers
             {
 
                 var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.CertificateUploaded.ToString());
+             //   _logging.LogInformation($"{_globalVariables.name} requested all insurance request {JsonConvert.SerializeObject(getAll)}  at {DateTime.Now} ", "InsuranceCertificate");
 
-                _logging.LogInformation(getAll.Count().ToString(), "InsuranceCertificate");
+              //  _logging.LogInformation(getAll.Count().ToString(), "InsuranceCertificate");
 
                 if (getAll == null)
                 {
@@ -737,7 +756,7 @@ namespace InsuranceManagement.Controllers
             {
                 string text = ""; 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.UIC))) return RedirectToAction("Unauthorized");
-                _logging.LogInformation($"Inside UploadCertificate for this request{model.insuranceId}", "Post UploadCertificate");
+              //  _logging.LogInformation($"Inside UploadCertificate for this request{model.insuranceId}", "Post UploadCertificate");
 
                 string message = "File not valid";
 
@@ -784,7 +803,7 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ACI))) return RedirectToAction("Unauthorized");
 
                 var getrecord = await _reqservice.GetInsuranceRequestsByStageAsync(InsuranceStage.ApprovedCertificate.ToString());
-                _logging.LogInformation(getrecord.Count().ToString(), "AssignContractID");
+              //  _logging.LogInformation(getrecord.Count().ToString(), "AssignContractID");
 
 
                 //_reqservice.GetPendingRequests();
@@ -883,7 +902,7 @@ namespace InsuranceManagement.Controllers
 
 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ACI))) return RedirectToAction("Unauthorized");
-                _logging.LogInformation($"Inside AssignContractID for this request{model.RequestID}", "Post AssignContractID");
+               // _logging.LogInformation($"Inside AssignContractID for this request{model.RequestID}", "Post AssignContractID");
                 string message = "";
                 if (ModelState.IsValid)
                 {
@@ -1002,7 +1021,7 @@ namespace InsuranceManagement.Controllers
 
                 var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.UnderwriterAssigned.ToString());
                 //var detail = JsonConvert.SerializeObject(getAll);
-                _logging.LogInformation(getAll.Count().ToString(), "AssignUnderwriter");
+             //   _logging.LogInformation(getAll.Count().ToString(), "AssignUnderwriter");
 
                 //var underwriters = await _service.GetAllUnderwriter();
                 //ViewBag.Underwriters = new SelectList(underwriters, "Id", "Name");
@@ -1118,7 +1137,7 @@ namespace InsuranceManagement.Controllers
 
 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ANU))) return RedirectToAction("Unauthorized");
-                _logging.LogInformation($"Inside AssignUnderwriter for this request{requestId}", "Post AssignUnderwriter");
+              //  _logging.LogInformation($"Inside AssignUnderwriter for this request{requestId}", "Post AssignUnderwriter");
                 string message = "";
                 //// Process the selected underwriters for each insurance request
                 //var getInsurance = await _service.GetInsurancereq(requestId.ToString());
@@ -1268,7 +1287,7 @@ namespace InsuranceManagement.Controllers
 
                 // You can use Entity Framework or any other data access method
                 var certificate = await _reqservice.GetInsuranceRequestsByStageAsync1(InsuranceStage.ReviewCertificate.ToString());
-                _logging.LogInformation(certificate.Count().ToString(), "Review");
+               // _logging.LogInformation(certificate.Count().ToString(), "Review");
 
 
                 if (certificate == null)
@@ -1332,7 +1351,7 @@ namespace InsuranceManagement.Controllers
 
                 var getRequest = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync(CertificateID.ToString());
                 var getInsurance = await _service.GetInsurancereq(CertificateID.ToString());
-                _logging.LogInformation($" Got record for {getRequest.RequestID}", "ReviewCertificateUpload");
+               // _logging.LogInformation($" Got record for {getRequest.RequestID}", "ReviewCertificateUpload");
 
                 var record = new ReviewCertificateViewModel()
                 {
@@ -1374,7 +1393,7 @@ namespace InsuranceManagement.Controllers
 
 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.RIC))) return RedirectToAction("Unauthorized");
-                _logging.LogInformation($"Inside ReviewCertificateUpload2 for this request{model.CertificateID}", "Post ReviewCertificateUpload2");
+              //  _logging.LogInformation($"Inside ReviewCertificateUpload2 for this request{model.CertificateID}", "Post ReviewCertificateUpload2");
                 string message = "";
                 if (ModelState.IsValid)
                 {
@@ -1524,6 +1543,8 @@ namespace InsuranceManagement.Controllers
 
             try
             {
+                _logging.LogInformation($"{_globalVariables.name} created  Insurance request{JsonConvert.SerializeObject(model)} ", "CreateRequest");
+
                 string message = "";
                 var request = new Request()
                 {

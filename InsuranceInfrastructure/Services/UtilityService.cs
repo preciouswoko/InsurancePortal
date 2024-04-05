@@ -536,19 +536,26 @@ namespace InsuranceInfrastructure.Services
         {
             try
             {
-
+                
 
                 /// new LogHelper().Info(string.Format("Decrypting Ciphertext"));
                 using (Aes myAes = Aes.Create())
                 {
-
+                    string _secretKey = _appsettings.Key;
+                    string _iv = _appsettings.Iv;
 
                     myAes.Key = Encoding.UTF8.GetBytes(_secretKey);
-                    // myAes.IV = Encoding.UTF8.GetBytes(_iv);
-                    myAes.IV = Convert.FromBase64String(_iv);
+                    myAes.IV = Encoding.UTF8.GetBytes(_iv);
 
-                    // Convert the ciphertext (hex string) back to byte array
-                    byte[] encryptedBytes = StringToByteArray(ciphertext);
+                    byte[] encryptedBytes = Convert.FromBase64String(ciphertext);
+
+
+                    //myAes.Key = Encoding.UTF8.GetBytes(_secretKey);
+                    //// myAes.IV = Encoding.UTF8.GetBytes(_iv);
+                    //myAes.IV = Convert.FromBase64String(_iv);
+
+                    //// Convert the ciphertext (hex string) back to byte array
+                    //byte[] encryptedBytes = StringToByteArray(ciphertext);
 
                     // Decrypt the byte array to plaintext
                     string plaintext = DecryptBytesToString_Aes(encryptedBytes, myAes.Key, myAes.IV);
@@ -563,7 +570,6 @@ namespace InsuranceInfrastructure.Services
                 throw ex;
             }
         }
-
         private static string DecryptBytesToString_Aes(byte[] cipherText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -602,6 +608,44 @@ namespace InsuranceInfrastructure.Services
             }
             return plaintext;
         }
+        //private static string DecryptBytesToString_Aes(byte[] cipherText, byte[] Key, byte[] IV)
+        //{
+        //    // Check arguments.
+        //    if (cipherText == null || cipherText.Length <= 0)
+        //        throw new ArgumentNullException("cipherText");
+        //    if (Key == null || Key.Length <= 0)
+        //        throw new ArgumentNullException("Key");
+        //    if (IV == null || IV.Length <= 0)
+        //        throw new ArgumentNullException("IV");
+
+        //    string plaintext = null;
+        //    // Create an Aes object
+        //    // with the specified key and IV.
+        //    using (Aes aesAlg = Aes.Create())
+        //    {
+        //        aesAlg.Key = Key;
+        //        aesAlg.IV = IV;
+
+        //        // Create a decryptor to perform the stream transform.
+        //        ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+        //        // Create the streams used for decryption.
+        //        using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+        //        {
+        //            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor,
+        //                CryptoStreamMode.Read))
+        //            {
+        //                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+        //                {
+        //                    // Read the decrypted bytes from the decrypting stream
+        //                    // and place them in a string.
+        //                    plaintext = srDecrypt.ReadToEnd();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return plaintext;
+        //}
 
         public byte[] StringToByteArray(string hex)
         {

@@ -19,7 +19,8 @@ namespace InsuranceManagement.Controllers
     [TypeFilter(typeof(AuditFilterAttribute))]
     public class UnderwritesController : Controller
     {
-        private readonly ILogger<UnderwritesController> _logger;
+        // private readonly ILogger<UnderwritesController> _logger;
+        private readonly ILoggingService _logger;
         private readonly IInsuranceService _service;
         private readonly IRequestService _request;
        //GlobalVariables globalVariables;
@@ -27,7 +28,7 @@ namespace InsuranceManagement.Controllers
         private readonly ISessionService _session;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string generalVariable;
-        public UnderwritesController(ILogger<UnderwritesController> logger, ISessionService session, IInsuranceService service, IRequestService request,
+        public UnderwritesController(ILoggingService logger/*ILogger<UnderwritesController> logger*/, ISessionService session, IInsuranceService service, IRequestService request,
             IHttpContextAccessor httpContextAccessor)
         {
             _service = service;
@@ -74,7 +75,9 @@ namespace InsuranceManagement.Controllers
             if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOU))) return RedirectToAction("Unauthorized", "Insurance");
 
             var getall = await _service.GetAllUnderwriter();
-            if(message != null)
+          //  _logger.LogInformation($"{_globalVariables.name} requested for list of Underwriter {getall.Count()}/*{JsonConvert.SerializeObject(getall)}*/", "UnderwriteIndex");
+
+            if (message != null)
             {
                 if (message.Contains("Error"))
                 {
@@ -117,9 +120,12 @@ namespace InsuranceManagement.Controllers
             try
             {
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOU))) return RedirectToAction("Unauthorized", "Insurance");
+                _logger.LogInformation($"{_globalVariables.name} created underwriter {JsonConvert.SerializeObject(collection)} ", "CreateUnderwriter");
 
                 // TODO: Add insert logic here
                 var add = _service.CreateUnderwriter(collection);
+              //  _logger.LogInformation($"{_globalVariables.name} created Underwriter {JsonConvert.SerializeObject(collection)} : result {add}", "CreateUnderwriter");
+
                 TempData["ResultMessage"] = "Successfully Created Underwriter";
                 ViewData["Message"] = "Successfully Created Underwriter";
                 return RedirectToAction(nameof(Index), new { message = "Successfully Created Underwriter" });
@@ -168,9 +174,12 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOU))) return RedirectToAction("Unauthorized", "Insurance");
 
                 collection.Status = _request.GetEnumValueByIndex(Convert.ToInt32(collection.Status) + 1).ToString();
+                _logger.LogInformation($"{_globalVariables.name} edited underwriter {JsonConvert.SerializeObject(collection)} ", "EditUnderwriter");
 
                 // TODO: Add update logic here
                 var update = _service.UpdateUnderwriter(collection);
+               // _logger.LogInformation($"{_globalVariables.name} edited Underwriter {JsonConvert.SerializeObject(collection)} : result {update}", "EditUnderwriter");
+
                 TempData["ResultMessage"] = "Successfully Edited Underwriter";
                 ViewData["Message"]  = "Successfully Edited Underwriter";
                 // return RedirectToAction(nameof(Index));
@@ -205,6 +214,8 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(_request.GetPermissionName(Permissions.LOU))) return RedirectToAction("Unauthorized", "Insurance");
 
                 var underwrite = await _service.GetUnderwrite(id);
+              //  _logger.LogInformation($"{_globalVariables.name} deleted Underwriter {JsonConvert.SerializeObject(underwrite)}", "DeletedUnderwriter");
+
                 if (underwrite == null)
                 {
                     return NotFound();

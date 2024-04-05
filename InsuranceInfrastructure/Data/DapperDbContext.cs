@@ -48,9 +48,11 @@ public class DapperDbContext
             //}
         }
 
-        
-        var DecryptedUserId = "User Id=" + await _utilityService.AESDecryptString(password, default(CancellationToken));
-        var Decryptedpassword = "Password=" + await _utilityService.AESDecryptString(id, default(CancellationToken));
+
+        //var DecryptedUserId = "User Id=" + await _utilityService.AESDecryptString(password, default(CancellationToken));
+        //var Decryptedpassword = "Password=" + await _utilityService.AESDecryptString(id, default(CancellationToken));
+        var DecryptedUserId = "User Id=" + _utilityService.Decrypt(password, default(CancellationToken));
+        var Decryptedpassword = "Password=" + _utilityService.Decrypt(id, default(CancellationToken));
         var DecryptedconnectionString = splitValues[0] + ";"  + DecryptedUserId + ";" + Decryptedpassword + ";";
         return new OracleConnection(DecryptedconnectionString);
         // return new OracleConnection(_utilityService.Decrypt(_connectionString, default(CancellationToken)));

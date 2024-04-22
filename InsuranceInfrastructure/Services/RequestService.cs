@@ -139,7 +139,10 @@ namespace InsuranceInfrastructure.Services
                     string premiumUniqueID = "";
                     string commissionUniqueID = "";
                     decimal commissionAmount = 0;
-
+                    if(insurance == null)
+                    {
+                        continue; 
+                    }
                     if (insurance != null)
                     {
                         foreach (var i in insurance.fundTransferLookUps)
@@ -180,7 +183,9 @@ namespace InsuranceInfrastructure.Services
                         Broker = request[item].Broker.BrokerName,
                         CustomerID = request[item].CustomerID,
                         InsuranceFlag = insurance.Stage,
-                        Certificate = $"<a href='/Insurance/DownloadCertificate/?RequestId={Convert.ToInt64(request[item].RequestID)}' class='btn btn-raised btn-primary waves-effect btn-round'>{insurance.FileName}</a>",
+                        Certificate = request[item].RequestID != null ? $"<a href='/Insurance/DownloadCertificate/?RequestId={Convert.ToInt64(request[item].RequestID)}' class='btn btn-raised btn-primary waves-effect btn-round'>{insurance.FileName}</a>" : null,
+
+                        // Certificate = $"<a href='/Insurance/DownloadCertificate/?RequestId={Convert.ToInt64(request[item].RequestID)}' class='btn btn-raised btn-primary waves-effect btn-round'>{insurance.FileName}</a>",
                         //Certificate = insurance.FileName,
                         PolicyNo = insurance.PolicyNo,
                         CommissionAmount = commissionAmount,
@@ -397,7 +402,7 @@ namespace InsuranceInfrastructure.Services
             GlobalVariables _globalVariables = GetGlobalVariables();
             var requests = new List<Request>();
             var insuranceRequests = await _InsuranceTbRepo.GetAllWithPredicate(
-                r => r.Stage == InsuranceStage.New.ToString() && r.RequestByUsername != _globalVariables.userName
+                r => r.Stage == InsuranceStage.New.ToString() && r.RequestByUsername != _globalVariables.userName && r.ToBeAuthroiziedBy == _globalVariables.branchCode
                 );
             foreach (var item in insuranceRequests)
             {
@@ -413,11 +418,11 @@ namespace InsuranceInfrastructure.Services
             }
             return requests;
         }
-        public async Task<IEnumerable<Request>> GetAllNeeded1(string stage)
+        public async Task<IEnumerable<Request>> GetAllNeeded1(string stage, string branchCode)
         {
             var requests = new List<Request>();
             var insuranceRequests = await _InsuranceTbRepo.GetAllWithPredicate(
-                r => r.Stage == stage
+                r => r.Stage == stage && r.ToBeAuthroiziedBy == branchCode
                 );
             foreach (var item in insuranceRequests)
             {
@@ -730,10 +735,11 @@ namespace InsuranceInfrastructure.Services
         {
             return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage);
         }
+
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceRequestsByStageAsync1(string stage)
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
-            return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage && r.CertificateRequestByUsername != _globalVariables.userName);
+            return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage && r.CertificateRequestByUsername != _globalVariables.userName && r.ToBeAuthroiziedBy == _globalVariables.branchCode);
         }
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceByRequester(string email)
         {

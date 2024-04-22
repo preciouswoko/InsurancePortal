@@ -681,7 +681,7 @@ namespace InsuranceManagement.Controllers
             try
             {
 
-                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.CertificateUploaded.ToString());
+                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.CertificateUploaded.ToString(), _globalVariables.branchCode);
              //   _logging.LogInformation($"{_globalVariables.name} requested all insurance request {JsonConvert.SerializeObject(getAll)}  at {DateTime.Now} ", "InsuranceCertificate");
 
               //  _logging.LogInformation(getAll.Count().ToString(), "InsuranceCertificate");
@@ -1019,7 +1019,7 @@ namespace InsuranceManagement.Controllers
 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ANU))) return RedirectToAction("Unauthorized");
 
-                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.UnderwriterAssigned.ToString());
+                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.UnderwriterAssigned.ToString(), _globalVariables.branchCode);
                 //var detail = JsonConvert.SerializeObject(getAll);
              //   _logging.LogInformation(getAll.Count().ToString(), "AssignUnderwriter");
 
@@ -1456,6 +1456,7 @@ namespace InsuranceManagement.Controllers
 
         public async Task<IActionResult> DownloadCertificate(long RequestId)
         {
+
             var getinsurance = await _service.GetInsurancereq(RequestId.ToString());
             byte[] fileBytes = Convert.FromBase64String(getinsurance.PolicyCertificate);
 

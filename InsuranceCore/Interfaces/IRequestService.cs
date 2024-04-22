@@ -24,7 +24,7 @@ namespace InsuranceCore.Interfaces
         string GenerateRandomString(int length);
         Task<int> GetPercentage(int id);
         Task<Underwriter> GetUnderwritersbybroker(int brokerid);
-        Task<IEnumerable<Request>> GetAllNeeded1(string stage);
+        Task<IEnumerable<Request>> GetAllNeeded1(string stage, string branchCode);
         Task<DataTablesResponse> FetchInsurancesForDataTableAsync(DataTablesRequest request);
 
         Task<IEnumerable<InsuranceTable>> GetInsuranceByRequester(string email);

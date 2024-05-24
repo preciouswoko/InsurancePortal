@@ -468,7 +468,7 @@ namespace InsuranceManagement.Controllers
                 }
                 foreach (var item in getrecord)
                 {
-                    var request = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync(item.RequestID);
+                    var request = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync1(item.RequestID);
                     var getcomment = await _service.GetLastComment(item.RequestID);
 
                     var record = new RequestReviewViewModel()
@@ -680,11 +680,12 @@ namespace InsuranceManagement.Controllers
 
             try
             {
+                var getAll = await _reqservice.GetAllNeeded(InsuranceStage.CertificateUploaded.ToString());
 
-                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.CertificateUploaded.ToString(), _globalVariables.branchCode);
-             //   _logging.LogInformation($"{_globalVariables.name} requested all insurance request {JsonConvert.SerializeObject(getAll)}  at {DateTime.Now} ", "InsuranceCertificate");
+                //  var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.CertificateUploaded.ToString(), _globalVariables.branchCode);
+                //   _logging.LogInformation($"{_globalVariables.name} requested all insurance request {JsonConvert.SerializeObject(getAll)}  at {DateTime.Now} ", "InsuranceCertificate");
 
-              //  _logging.LogInformation(getAll.Count().ToString(), "InsuranceCertificate");
+                //  _logging.LogInformation(getAll.Count().ToString(), "InsuranceCertificate");
 
                 if (getAll == null)
                 {
@@ -771,7 +772,13 @@ namespace InsuranceManagement.Controllers
 
                         //return RedirectToAction("InsuranceCertificate");
                     }
-
+                    TimeSpan difference = model.ExpiryDate - model.DateofIssuance;
+                    if (difference.TotalDays > 365) 
+                    {
+                         text = "Error: The difference between Policy Issuance Date and Expiry Date should be one year or less";
+                        TempData["ResultMessage"] = text;
+                        return RedirectToAction(nameof(InsuranceCertificate), new { message = text });
+                    }
                     var upload = await _reqservice.UploadCertificate(model);
                     message = upload;
                     ViewBag.Message = upload;
@@ -874,7 +881,7 @@ namespace InsuranceManagement.Controllers
             string message = "";
             var getRequest = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync(RequestId.ToString());
             getRequest.ContractID = ContractID.Trim();
-            var assign = await _service.SetContractId(getRequest);
+            var assign = await _reqservice.SetContractId(getRequest);
             if (assign == true)
             {
                 // Success message
@@ -906,7 +913,7 @@ namespace InsuranceManagement.Controllers
                 string message = "";
                 if (ModelState.IsValid)
                 {
-                    var validContract = await _service.SetContractId(model);
+                    var validContract = await _reqservice.SetContractId(model);
 
                     if (validContract)
                     {
@@ -1019,7 +1026,7 @@ namespace InsuranceManagement.Controllers
 
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ANU))) return RedirectToAction("Unauthorized");
 
-                var getAll = await _reqservice.GetAllNeeded1(InsuranceStage.UnderwriterAssigned.ToString(), _globalVariables.branchCode);
+                var getAll = await _reqservice.GetAllNeeded(InsuranceStage.UnderwriterAssigned.ToString());
                 //var detail = JsonConvert.SerializeObject(getAll);
              //   _logging.LogInformation(getAll.Count().ToString(), "AssignUnderwriter");
 
@@ -1139,51 +1146,7 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.ANU))) return RedirectToAction("Unauthorized");
               //  _logging.LogInformation($"Inside AssignUnderwriter for this request{requestId}", "Post AssignUnderwriter");
                 string message = "";
-                //// Process the selected underwriters for each insurance request
-                //var getInsurance = await _service.GetInsurancereq(requestId.ToString());
-                //var getRequest = await _service.Getrequest(requestId.ToString());
-                ////_service.GetInsuranceRequest(id);
-                //if (getRequest == null)
-                //{
-                //    TempData["ResultMessage"] = "Error: Failed to assign underwriter.";
-
-                //    return RedirectToAction("AssignUnderwriter"); // or return an error view
-
-                //}
-                ////if (getRequest.UserId == _globalVariables.userid) return RedirectToAction("Unauthorized"); //return Unauthorized();
-                ////var underwriter = await _service.GetUnderwrite(selectedUnderwriter);
-                ////if(underwriter.BrokerId != getRequest.BrokerId)
-                ////{
-                ////    TempData["ResultMessage"] = "Error: Failed to assign underwriter. because underwrite selected is not under broker";
-
-                ////    // Handle the case where the selected Underwriter does not exist
-                ////    return RedirectToAction("AssignUnderwriter");
-                ////}
-                ////if (underwriter == null)
-                ////{
-                ////    TempData["ResultMessage"] = "Error: Failed to assign underwriter.";
-
-                ////    // Handle the case where the selected Underwriter does not exist
-                ////    return RedirectToAction("AssignUnderwriter"); // or return an error view
-                ////}
-                //getRequest.UnderwriterId = selectedUnderwriter;
-
-                //// Assign the underwriter for this insurance request
-                //var assign = await _service.AssignUnderwriter(getInsurance, getRequest);
-                //if (assign == "SuccessFul")
-                //{
-                //    TempData["ResultMessage"] = " Successfully assigned Underwriter";
-                //}
-                //else
-                //{
-                //    TempData["ResultMessage"] = "Error: Failed to assign underwriter.";
-                //}
-
-
-                //return RedirectToAction("AssignUnderwriter");
-
-                // return View();
-                // Process the selected underwriters for each insurance request
+               
                 var getInsurance = await _service.GetInsurancereq(requestId.ToString());
                 var getRequest = await _service.Getrequest(requestId.ToString());
                 //_service.GetInsuranceRequest(id);
@@ -1237,7 +1200,7 @@ namespace InsuranceManagement.Controllers
                     }
                     else
                     {
-                        message = "Error: Failed to Update the request.";
+                        message = $"Error: Failed to Update the request.{update}";
                         TempData["ResultMessage"] = message;
                     }
                 }
@@ -1254,7 +1217,8 @@ namespace InsuranceManagement.Controllers
                     }
                     else
                     {
-                        message = "Error: Failed to assign underwriter.";
+                       // var error = assign.Substring("Unsucessful : ".Length);
+                        message = $"Error: {assign}";
                         TempData["ResultMessage"] = message;
                     }
 
@@ -1273,7 +1237,21 @@ namespace InsuranceManagement.Controllers
 
 
 
+        public async Task<IActionResult> ViewFeature()
+        {
+            GlobalVariables _globalVariables = GetGlobalVariables();
+            try
+            {
 
+                var result = _reqservice.MapPermissions(_globalVariables.Permissions);
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                _logging.LogError(ex.ToString(), "ViewFeature");
+                throw;
+            }
+        }
 
 
         public async Task<IActionResult> Review(string message = null)
@@ -1300,27 +1278,30 @@ namespace InsuranceManagement.Controllers
                 foreach (var item in certificate)
                 {
                     var request = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync(item.RequestID);
-
-                    var viewModel = new ReviewCertViewModel
+                    if(request != null)
                     {
-                        CertificateID = Convert.ToInt64(item.RequestID),
-                        IssuanceDate = item.PolicyIssuanceDate,
-                        ExpiryDate = item.PolicyExpiryDate,
-                        PolicyNumber = item.PolicyNo,
-                        EstimatedPremium = request.UpdatedPremium,
-                        CustomerEmail = request.CustomerEmail,
-                        AccountName = request.AccountName,
-                        AccountNumber = request.AccountNo,
-                        Broker = request.Broker.BrokerName,
-                        CustomerName = request.CustomerName,
-                        T24CustomerID = request.CustomerID,
-                        InsuranceSubType = request.InsuranceSubType?.Name,
-                        InsuranceType = request.InsuranceType.InsuranceType.Name,
-                        Underwrite = request.Underwriter.Name,
-                        Upload = "true"
+                        var viewModel = new ReviewCertViewModel
+                        {
+                            CertificateID = Convert.ToInt64(item.RequestID),
+                            IssuanceDate = item.PolicyIssuanceDate,
+                            ExpiryDate = item.PolicyExpiryDate,
+                            PolicyNumber = item.PolicyNo,
+                            EstimatedPremium = request.UpdatedPremium,
+                            CustomerEmail = request.CustomerEmail,
+                            AccountName = request.AccountName,
+                            AccountNumber = request.AccountNo,
+                            Broker = request.Broker.BrokerName,
+                            CustomerName = request.CustomerName,
+                            T24CustomerID = request.CustomerID,
+                            InsuranceSubType = request.InsuranceSubType?.Name,
+                            InsuranceType = request.InsuranceType.InsuranceType.Name,
+                            Underwrite = request.Underwriter.Name,
+                            Upload = "true"
 
-                    };
-                    records.Add(viewModel);
+                        };
+                        records.Add(viewModel);
+                    }
+                    continue;
                 }
                 if (message != null)
                 {
@@ -1425,16 +1406,18 @@ namespace InsuranceManagement.Controllers
                     //getcertificate.Comment = model.Comment;
                     //getcertificate.DateModified = DateTime.Now;
                     //getcertificate.ApprovalUserId = _globalVariables.userid;
+                    var getdata = await _reqservice.GetRequestDetailsForInsuranceRequestsAsync(model.CertificateID.ToString());
+                    getdata.Status = model.Status.ToString();
 
                     if (model.Status.ToString() == "Rejected")
                     {
-                        var update = _reqservice.UpdateInsuranceReq(getRequest, model.Comment);
+                        var update = _reqservice.UpdateInsuranceReq(getRequest, model.Comment, getdata);
                         message = update + " Rejected  Record";
                         TempData["ResultMessage"] = message;
                     }
                     else if (model.Status.ToString() == "Approved")
                     {
-                        var review = await _service.ReviewCertificateUploaded(getRequest);
+                        var review = await _service.ReviewCertificateUploaded(getRequest, getdata);
                         message = review + " Approved  Record";
                         TempData["ResultMessage"] = message;
                     }
@@ -1541,12 +1524,17 @@ namespace InsuranceManagement.Controllers
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
             if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.INR))) return RedirectToAction("Unauthorized");
+            string message = "";
 
             try
             {
                 _logging.LogInformation($"{_globalVariables.name} created  Insurance request{JsonConvert.SerializeObject(model)} ", "CreateRequest");
-
-                string message = "";
+                if (!ModelState.IsValid)
+                {
+                    message = "The request creation process has failed because some required fields are missing. Please double-check the account information and ensure that all entry fields are properly filled out before trying to create the request again.";
+                    TempData["ResultMessage"] = message;
+                    return RedirectToAction("CreateRequest1");
+                }
                 var request = new Request()
                 {
                     //InsuranceSubTypeID = model?.InsuranceSubTypeId,

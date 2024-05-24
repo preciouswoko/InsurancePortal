@@ -16,13 +16,13 @@ namespace InsuranceManagement.ViewModels
         [Column(TypeName = "varchar(10)")]
         [DisplayName("Account Number")]
         public string AccountNumber { get; set; }
-
+        [Required]
         public string AccountName { get; set; }
-
+        [Required]
         public string CustomerName { get; set; }
-
+        [Required]
         public string CustomerId { get; set; }
-
+        [Required]
         public string CustomerEmail { get; set; }
         [Required]
         [DisplayName("Broker")]

@@ -44,7 +44,7 @@ namespace InsuranceCore.Interfaces
         Task<IEnumerable<BrokerSubInsuranceType>> GetAllBrokerInsuranceSubTypebyId(int requestid);
         Task<IEnumerable<BrokerInsuranceType>> GetAllbrokerInsuranceTypebyId(int requestid);
         Task<string> AssignUnderwriter(InsuranceTable Insurance, Request request);
-        Task<bool> SetContractId(Request request);
+       
         Task<IEnumerable<BrokerInsuranceType>> GetAllBrokerInsuranceType();
         Task<IEnumerable<BrokerSubInsuranceType>> GetAllbrokerSubInsuranceType();
         string CreateBroker(Broker request);
@@ -60,7 +60,7 @@ namespace InsuranceCore.Interfaces
         Task<IEnumerable<RecordReport>> MapInsuranceRequestsToInfo(IEnumerable<InsuranceTable> requests);
 
         Task<string> GetRelativePath(string base64String, string contentType, string file_name);
-        Task<string> ReviewCertificateUploaded(InsuranceTable request);
+        Task<string> ReviewCertificateUploaded(InsuranceTable request,Request model);
         Task<IEnumerable<InsuranceSubType>> GetInsuranceSubTypesByInsuranceType(int insuranceTypeId);
         Task<IEnumerable<InsuranceType>> GetAllInsuranceTypebyId(int requestid);
         Task<IEnumerable<InsuranceSubType>> GetAllInsuranceSubTypebyId(int requestid);

@@ -20,5 +20,6 @@ namespace InsuranceCore.Models
         public const string GAR = "Get All Request";
         public const string LBI = "List Of BrokerInsuranceType";
         public const string LBS = "List Of BrokerInsuranceSubType";
+        public const string VWF = "Can View Features";
     }
 }

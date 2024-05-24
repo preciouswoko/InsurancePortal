@@ -82,13 +82,14 @@ namespace InsuranceInfrastructure.Services
                 //    globalVariables.name = "Precious Woko";
                 //    globalVariables.Permissions = new List<string> { "GAI", "ACI", "RIC", "UIC", "ANU", "AUR", "INR", "LIS", "LOI", "LOU", "LOB", "LBI", "LBS", "GAR" };
                 //    globalVariables.ApprovalLevel = 1;
+                //    globalVariables.Permissions.Add("VWF");
                 //    globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, globalVariables.Permissions);
 
                 //    var session = _httpContextAccessor.HttpContext.Session;
 
                 //    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
-                //    //_service.Set<GlobalVariables>("GlobalVariables", globalVariables);
-                //    //_service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
+                //    _service.Set<GlobalVariables>("GlobalVariables", globalVariables);
+                //    _service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
                 //    var LoginResponse = new LoginResponse
                 //    {
                 //        username = username,
@@ -110,6 +111,7 @@ namespace InsuranceInfrastructure.Services
                     globalVariables.Email = response.email;
                     globalVariables.name = response.name;
                     globalVariables.branchCode = response.branchcodes.Replace("|", "");
+                    globalVariables.Permissions.Add("VWF");
                     globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, response.featurelist);
                     
 

@@ -167,8 +167,7 @@ else
                                 <label for="comment">Comment:</label>
                                 <textarea class="form-control" id="comment" name="comment" required></textarea>
                             </div>
-
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -252,7 +251,11 @@ else
             // Hide no results message (implement this)
         }
     }
-
+    // Function to disable the submit button
+    function disableSubmitButton() {
+        document.getElementById('submitButton').disabled = true;
+        return true;
+    }
     // Initially filter on page load
     searchByAccountNumber();
 

@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static InsuranceCore.DTO.ReusableVariables;
 using Microsoft.AspNetCore.Http;
-
+using System.Globalization;
 
 namespace InsuranceInfrastructure.Services
 {
@@ -38,13 +38,14 @@ namespace InsuranceInfrastructure.Services
         private readonly IOracleDataService _oracleDataService;
         public readonly IGenericRepository<BrokerInsuranceType> _brokerinsuranceTypeRepo;
         public readonly IGenericRepository<BrokerSubInsuranceType> _brokerinsuranceSubTypeRepo;
+        public readonly IGenericRepository<FundTransferLookUp> _fundTRepo;
         private readonly IHttpClientService _httpClientService;
         public readonly IAumsService _aum;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string generalVariable;
 
         public RequestService(ILoggingService logging, IGenericRepository<Request> reqRepo, IAumsService aum,
-            IUtilityService utilityService, IHttpClientService httpClientService,
+            IUtilityService utilityService, IHttpClientService httpClientService, IGenericRepository<FundTransferLookUp> fundTRepo,
             IGenericRepository<InsuranceType> typeRepo, IGenericRepository<Underwriter> WriterRepo, IOracleDataService oracleDataService,
             ISessionService service, IEmailService emailService, IOptions<AppSettings> ioptions, IGenericRepository<InsuranceTable> InsuranceTbRepo,
             IT24Service t24, IGenericRepository<Broker> brokerRepo, IGenericRepository<InsuranceSubType> subTypeRepo
@@ -73,7 +74,7 @@ namespace InsuranceInfrastructure.Services
             _utilityService = utilityService;
             _oracleDataService = oracleDataService;
             _httpContextAccessor = httpContextAccessor;
-
+            _fundTRepo = fundTRepo;
         }
         public GlobalVariables GetGlobalVariables()
         {
@@ -342,7 +343,7 @@ namespace InsuranceInfrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogFatal(ex.ToString(), "UpdateRequest");
-                return "Error";
+                return $"Error: {ex.Message}";
             }
 
         }
@@ -407,12 +408,35 @@ namespace InsuranceInfrastructure.Services
             foreach (var item in insuranceRequests)
             {
                 var request = await _reqRepo.GetWithIncludeAsync(
-                    x => (x.RequestID == item.RequestID &&   x.Status != CommentStatus.Closed.ToString() /*x.Status == BrokerStatus.Active.ToString()*/),
+                    x => (x.RequestID == item.RequestID && (x.Status == "Approved" || x.Status == "Active")),
                     x => x.Broker,
                     x => x.InsuranceType.InsuranceType,
                     x => x.InsuranceSubType,
                     x => x.Underwriter
 
+                    );
+                if (request != null)
+                {
+                    requests.Add(request);
+
+                }
+            }
+            return requests;
+        }
+        public async Task<IEnumerable<Request>> GetAllNeeded(string stage)
+        {
+            var requests = new List<Request>();
+            var insuranceRequests = await _InsuranceTbRepo.GetAllWithPredicate(
+                r => r.Stage == stage 
+                );
+            foreach (var item in insuranceRequests)
+            {
+                var request = await _reqRepo.GetWithIncludeAsync(
+                    x => (x.RequestID == item.RequestID && /*(x.Status == "Approved" || x.Status == "Active")*//* x.Status == RequestStatus.Approved.ToString()*/ x.Status != CommentStatus.Closed.ToString()),
+                    x => x.Broker,
+                    x => x.InsuranceType.InsuranceType,
+                    x => x.InsuranceSubType,
+                    x => x.Underwriter
                     );
                 requests.Add(request);
             }
@@ -427,7 +451,7 @@ namespace InsuranceInfrastructure.Services
             foreach (var item in insuranceRequests)
             {
                 var request = await _reqRepo.GetWithIncludeAsync(
-                    x => (x.RequestID == item.RequestID && x.Status  == RequestStatus.Approved.ToString()/*!= CommentStatus.Closed.ToString()*/),
+                    x => (x.RequestID == item.RequestID && (x.Status == "Approved" || x.Status == "Active") /*x.Status  == RequestStatus.Approved.ToString()*//*!= CommentStatus.Closed.ToString()*/),
                     x => x.Broker,
                     x => x.InsuranceType.InsuranceType,
                     x => x.InsuranceSubType,
@@ -452,6 +476,7 @@ namespace InsuranceInfrastructure.Services
                 return serial.ToString();
             }
         }
+
 
         public async Task<string> AuthorizeInsurance(InsuranceTable request)
         {
@@ -739,7 +764,7 @@ namespace InsuranceInfrastructure.Services
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceRequestsByStageAsync1(string stage)
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
-            return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage && r.CertificateRequestByUsername != _globalVariables.userName && r.ToBeAuthroiziedBy == _globalVariables.branchCode);
+            return await _InsuranceTbRepo.GetAllWithPredicate(r => r.Stage == stage /*&& r.CertificateRequestByUsername != _globalVariables.userName && r.ToBeAuthroiziedBy == _globalVariables.branchCode*/);
         }
         public async Task<IEnumerable<InsuranceTable>> GetInsuranceByRequester(string email)
         {
@@ -754,19 +779,31 @@ namespace InsuranceInfrastructure.Services
         {
 
             return await _reqRepo.GetWithIncludeAsync(
-                      x => (x.RequestID == requestId && x.Status != CommentStatus.Closed.ToString()),
+                      x => (x.RequestID == requestId && (x.Status == "Approved" || x.Status == "Active")/*x.Status == CommentStatus.Approved.ToString()*/ /*!= CommentStatus.Closed.ToString()*/),
                       x => x.Broker,
                       x => x.InsuranceType.InsuranceType,
                       x => x.InsuranceSubType,
                       x => x.Underwriter
                   );
         }
-        public string UpdateInsuranceReq(InsuranceTable request, string comment)
+        public async Task<Request> GetRequestDetailsForInsuranceRequestsAsync1(string requestId)
+        {
+
+            return await _reqRepo.GetWithIncludeAsync(
+                      x => (x.RequestID == requestId && x.Status  != CommentStatus.Closed.ToString()),
+                      x => x.Broker,
+                      x => x.InsuranceType.InsuranceType,
+                      x => x.InsuranceSubType,
+                      x => x.Underwriter
+                  );
+        }
+        public string UpdateInsuranceReq(InsuranceTable request, string comment,Request model)
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
             {
                 _logger.LogInformation($"User{_globalVariables.name} Eneter UpdateInsuranceReq at{DateTime.Now}");
+                var updateRepuest = _reqRepo.Update(model);
 
                 var update = _InsuranceTbRepo.Update(request);
                 if (update == false) return "UnSuccessfully";
@@ -1168,10 +1205,10 @@ namespace InsuranceInfrastructure.Services
 
                 // var commission = Convert.ToDecimal((estimatedPremium * insuranceTypeId) / 100);
                 var commission = (Convert.ToDecimal((estimatedPremium * insuranceTypeId) / 100)) / Convert.ToDecimal(_appsettings.VAT);
-
+                var getserial = await _fundTRepo.GetAllCount(x => x.RequestID == request.RequestID) + 1;
                 var formattedCommission = Decimal.Round(commission, 2, MidpointRounding.AwayFromZero);
                 //string formattedDateTime = DateTime.Now.ToString("yy/MM/dd HHmmss");
-                string Serial = FormatSerial(Insurance.Serial);
+                string Serial = FormatSerial(getserial);
                 var transfer = new FundsTransferRequestDto()
                 {
                     TransactionType = TransactionType.InsuranceRequest.ToString(),
@@ -1185,7 +1222,7 @@ namespace InsuranceInfrastructure.Services
                     DebitCurrency = "NGN",
                     TransactionCode = "IM",
                     TransactionId = $"{request.UpdatedPremium}-{request.ID}-{GenerateRandomString(3)}",
-                    Id = Convert.ToInt64(Insurance.Serial),
+                    Id = Convert.ToInt64(Serial),
                     TransactionRef = $"F{request.RequestID}",
                     UnquieId = $"FEES-{request.RequestID}-{Serial}",
                     RequestID = request.RequestID,
@@ -1204,9 +1241,11 @@ namespace InsuranceInfrastructure.Services
                 _logger.LogInformation(fundtrans.ToString(), $"FundTransfer to Broker Account ={request.Broker.AccountNumber}");
                 var requery = await _oracleDataService.RequeryFTUniqueId(transfer.UnquieId);
                 _InsuranceTbRepo.Update(Insurance);
-                if (requery == null) return "UnSuccessful";
+                if (requery == null) return $"UnSuccessful : {fundtrans.ResponseMessage}";
                 if (fundtrans.Status == true)
                 {
+                    var getserialForComm = await _fundTRepo.GetAllCount(x => x.RequestID == request.RequestID) + 1;
+                    string SerialCom = FormatSerial(getserialForComm);
 
                     var paycommission = new FundsTransferRequestDto()
                     {
@@ -1221,9 +1260,9 @@ namespace InsuranceInfrastructure.Services
                         DebitCurrency = "NGN",
                         TransactionCode = "IM",
                         TransactionId = $"{formattedCommission}-{request.ID}-{GenerateRandomString(3)}",
-                        Id = Convert.ToInt64(Insurance.Serial),
+                        Id = Convert.ToInt64(SerialCom),
                         TransactionRef = $"C{request.RequestID}",
-                        UnquieId = $"COMM-{request.RequestID}-{Serial}",
+                        UnquieId = $"COMM-{request.RequestID}-{SerialCom}",
                         RequestID = request.RequestID,
                         InsuranceTableId = Insurance.ID
 
@@ -1240,7 +1279,7 @@ namespace InsuranceInfrastructure.Services
                     {
                         var lockfund = await _t24.LockFunds(paycommission.DebitAccount, "Lock " + paycommission.UnquieId, paycommission.Amount, credential);
 
-                        return "UnSuccessful";
+                        return $"UnSuccessful : {lockfund}";
                     }
 
                     if (fundtranstoglaccount.Status == false)
@@ -1286,7 +1325,7 @@ namespace InsuranceInfrastructure.Services
                     _emailService.SmtpSendMail(request.Broker.EmailAddress, bodytemp, emailSubjectRequest);
                     // _emailService.SmtpSendMail(broker.EmailAddress, $"Payment Request for  Insurance was successful. see detail{request.CustomerName}", "Payment on Insurance");
 
-                    return "Successfully";
+                    return $"Successfully : {fundtrans.ResponseMessage}";
                 }
 
                 if (fundtrans.Status == false)
@@ -1310,7 +1349,7 @@ namespace InsuranceInfrastructure.Services
 
                     // _emailService.SmtpSendMail(request.CustomerEmail, mailTemplate", "Debit Notification For Insurance  Process");
                 }
-                return "Unsucessful";
+                return $"Unsucessful : {fundtrans.ResponseMessage}";
             }
             catch (Exception ex)
             {
@@ -1432,7 +1471,7 @@ namespace InsuranceInfrastructure.Services
                 {
 
                     var environment = _appsettings.Envirnoment;
-                    if (environment.ToLower() != "Test")
+                    if (environment.ToLower() != "test")
                     {
                         var authResp = await _aum.GetUserInFeature(_globalVariables.branchCode, "RIC");
                         authEmail = string.Join(",", authResp.Select(o => o.email));
@@ -1523,7 +1562,7 @@ namespace InsuranceInfrastructure.Services
                 if (update == true)
                 {
                     var environment = _appsettings.Envirnoment;
-                    if (environment.ToLower() != "Test")
+                    if (environment.ToLower() != "test")
                     {
                         var authResp = await _aum.GetUserInFeature(_globalVariables.branchCode, "RIC");
                         authEmail = string.Join(",", authResp.Select(o => o.email));
@@ -1559,6 +1598,160 @@ namespace InsuranceInfrastructure.Services
                 return "UnSuccessFul";
             }
 
+        }
+        public async Task<bool> SetContractId(Request request)
+        {
+            var getinsurance = await _InsuranceTbRepo.GetWithPredicate(x => x.RequestID == request.RequestID);
+
+            try
+            {
+                // valid loan contractId
+                // note check for expired
+                var validcontractid = await _oracleDataService.ExecuteQuerywithContractId(request.ContractID);
+                DateTime maturityDate;
+
+                var environment = _appsettings.Envirnoment;
+                //if (environment.ToLower() != "test")
+                //{
+                //    if (DateTime.TryParseExact(validcontractid.MATURITY_DATE, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out maturityDate))
+                //    {
+                //        // maturityDate = DateTime.MinValue;
+                //    }
+                //}
+                //else
+                //{
+                //     maturityDate = DateTime.ParseExact("20221007", "yyyyMMdd", CultureInfo.InvariantCulture);
+                //}
+                //if(validcontractid.MATURITY_DATE != null)
+                //{
+                //    maturityDate = DateTime.ParseExact(validcontractid.MATURITY_DATE, "MM/dd/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+
+                //}
+                //else
+                //{
+                //    if (environment.ToLower() != "test")
+                //    {
+                //        maturityDate = DateTime.Now;
+
+                //    }
+                //    else
+                //    {
+                //            maturityDate = DateTime.ParseExact("20221007", "yyyyMMdd", CultureInfo.InvariantCulture);
+
+                //    }
+                //}
+
+                if (environment.ToLower() != "test")
+                {
+                    if (validcontractid.MATURITY_DATE != null)
+                    {
+                          maturityDate = DateTime.ParseExact(validcontractid.MATURITY_DATE, "MM/dd/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+
+                    }else
+                    {
+                        maturityDate = DateTime.MinValue;
+                    }
+
+                    if (validcontractid.CUSTOMER_ID != request.CustomerID || maturityDate < DateTime.Now) return false;
+                }
+                else
+                {
+                    if (validcontractid.MATURITY_DATE != null)
+                    {
+                        maturityDate = DateTime.ParseExact(validcontractid.MATURITY_DATE, "MM/dd/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+
+                    }
+                    else
+                    {
+                        maturityDate = DateTime.MinValue;
+                    }
+
+                    if (validcontractid.CUSTOMER_ID != request.CustomerID || maturityDate < DateTime.ParseExact("20221007", "yyyyMMdd", CultureInfo.InvariantCulture)) return false;
+                }
+
+                 //   if (validcontractid.CUSTOMER_ID != request.CustomerID || maturityDate < DateTime.Now) return false;
+                request.ContractMaturityDate = maturityDate;
+                //var validcontractid = await FetchDetail(request.ContractID);
+                // Set status to Active 
+                getinsurance.Stage = InsuranceStage.End.ToString();
+                var updateinsurance = _InsuranceTbRepo.Update(getinsurance);
+                var updaterequest = _reqRepo.Update(request);
+                string msg = $"The insurance policy{request.ContractID} of your customer{request.AccountName} and{request.AccountNo} will expire on{getinsurance.PolicyExpiryDate}.Kindly inform the customer and ensure the account is adequately funded for the insurance premium on or before the due date.";
+
+                string body = _utilityService.BuildEmailTemplate(getinsurance.RequestByName, "Insurace Request Update", msg);
+
+                _emailService.SmtpSendMail(getinsurance.RequestByemail, body, "New insurance request assigned");
+                return updaterequest;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogFatal(ex.ToString(), "SetContractId");
+                getinsurance.ErrorMessage = ex.InnerException.ToString();
+                var updateRequest = _InsuranceTbRepo.Update(getinsurance);
+                return false;
+            }
+
+        }
+        public  List<PermissionInfo> MapPermissions(List<string> permissionsList)
+        {
+            var permissionInfos = new List<PermissionInfo>();
+
+            foreach (var permissionCode in permissionsList)
+            {
+                switch (permissionCode)
+                {
+                    case "INR":
+                        permissionInfos.Add(new PermissionInfo { Code = "INR", Name = Permissions.INR });
+                        break;
+                    case "AUR":
+                        permissionInfos.Add(new PermissionInfo { Code = "AUR", Name = Permissions.AUR });
+                        break;
+                    case "ANU":
+                        permissionInfos.Add(new PermissionInfo { Code = "ANU", Name = Permissions.ANU });
+                        break;
+                    case "UIC":
+                        permissionInfos.Add(new PermissionInfo { Code = "UIC", Name = Permissions.UIC });
+                        break;
+                    case "RIC":
+                        permissionInfos.Add(new PermissionInfo { Code = "RIC", Name = Permissions.RIC });
+                        break;
+                    case "ACI":
+                        permissionInfos.Add(new PermissionInfo { Code = "ACI", Name = Permissions.ACI });
+                        break;
+                    case "GAI":
+                        permissionInfos.Add(new PermissionInfo { Code = "GAI", Name = Permissions.GAI });
+                        break;
+                    case "LOB":
+                        permissionInfos.Add(new PermissionInfo { Code = "LOB", Name = Permissions.LOB });
+                        break;
+                    case "LOU":
+                        permissionInfos.Add(new PermissionInfo { Code = "LOU", Name = Permissions.LOU });
+                        break;
+                    case "LOI":
+                        permissionInfos.Add(new PermissionInfo { Code = "LOI", Name = Permissions.LOI });
+                        break;
+                    case "LIS":
+                        permissionInfos.Add(new PermissionInfo { Code = "LIS", Name = Permissions.LIS });
+                        break;
+                    case "GAR":
+                        permissionInfos.Add(new PermissionInfo { Code = "GAR", Name = Permissions.GAR });
+                        break;
+                    case "LBI":
+                        permissionInfos.Add(new PermissionInfo { Code = "LBI", Name = Permissions.LBI });
+                        break;
+                    case "LBS":
+                        permissionInfos.Add(new PermissionInfo { Code = "LBS", Name = Permissions.LBS });
+                        break;
+                    //case "VWF":
+                    //    permissionInfos.Add(new PermissionInfo { Code = "VWF", Name = Permissions.VWF });
+                    //    break;
+                    default:
+                        // Handle unknown permission codes
+                        break;
+                }
+            }
+
+            return permissionInfos;
         }
     }
 }

@@ -401,52 +401,7 @@ namespace InsuranceCore.Implementations
 
         }
 
-        public async Task<bool> SetContractId(Request request)
-        {
-            var getinsurance = await _InsuranceTbRepo.GetWithPredicate(x => x.RequestID == request.RequestID);
-
-            try
-            {
-                // valid loan contractId
-                // note check for expired
-                var validcontractid = await _oracleDataService.ExecuteQuerywithContractId(request.ContractID);
-
-                DateTime maturityDate;
-
-                if (DateTime.TryParseExact(validcontractid.MATURITY_DATE, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out maturityDate))
-                {
-                    // maturityDate = DateTime.MinValue;
-                }
-                else
-                {
-                    maturityDate = DateTime.Now;
-                }
-
-
-
-                if (validcontractid.CUSTOMER_ID != request.CustomerID || maturityDate < DateTime.Now) return false;
-                request.ContractMaturityDate = maturityDate;
-                //var validcontractid = await FetchDetail(request.ContractID);
-                // Set status to Active 
-                getinsurance.Stage = InsuranceStage.End.ToString();
-                var updateinsurance = _InsuranceTbRepo.Update(getinsurance);
-                var updaterequest = _reqRepo.Update(request);
-                string msg = $"The insurance policy{request.ContractID} of your customer{request.AccountName} and{request.AccountNo} will expire on{getinsurance.PolicyExpiryDate}.Kindly inform the customer and ensure the account is adequately funded for the insurance premium on or before the due date.";
-
-                string body = _utilityService.BuildEmailTemplate(getinsurance.RequestByName, "Insurace Request Update",msg);
-
-                _emailService.SmtpSendMail(getinsurance.RequestByemail, body, "New insurance request assigned");
-                return updaterequest;
-            }
-            catch (Exception ex)
-            {
-                _logging.LogFatal(ex.ToString(), "SetContractId");
-                getinsurance.ErrorMessage = ex.InnerException.ToString();
-                var updateRequest = _InsuranceTbRepo.Update(getinsurance);
-                return false;
-            }
-
-        }
+       
 
 
 
@@ -958,18 +913,19 @@ namespace InsuranceCore.Implementations
         }
 
        
-        public async Task<string> ReviewCertificateUploaded(InsuranceTable request)
+        public async Task<string> ReviewCertificateUploaded(InsuranceTable request,Request model)
         {
 
             try
             {
+                var updateRepuest = _reqRepo.Update(model);
 
 
                 var deleteFile = _utilityService.DeleteFile(request.FileName);
 
                 request.Stage = InsuranceStage.ApprovedCertificate.ToString();
-                var updateRepuest = _InsuranceTbRepo.Update(request);
-                if (updateRepuest == true) return "Successfully";
+                var updateInsurance= _InsuranceTbRepo.Update(request);
+                if (updateInsurance == true) return "Successfully";
                 return "UnSuccessful";
             }
             catch (Exception ex)

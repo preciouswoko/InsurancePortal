@@ -491,6 +491,7 @@ namespace InsuranceInfrastructure.Services
                  { "LBI", "A025" },
                 { "LBS", "A026" },
                  { "GAR", "A027" },
+                  { "VWF", "A028" },
             };
 
             var codes = new List<string>();

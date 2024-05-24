@@ -44,7 +44,8 @@ namespace InsuranceInfrastructure.Repositories
                   new MenuItems("A025","List Of Broker InsuranceType","Brokers", "Broker","BrokerInsuranceIndex","01",2),
                 new MenuItems("A026","List Of Broker InsuranceSubType","Brokers", "Broker","BrokerInsuranceSubTypeIndex","01",2),
                 new MenuItems("A027","Initaitor Requests","Insurance", "Insurance","GetAllRequest",null,8),
-                 
+                new MenuItems("A028","Features","Features", "Insurance","ViewFeature",null,8),
+
                 //new MenuItems("A025","Create Broker InsuranceType","Brokers", "Broker","CreateBrokerInsuranceType",null,2),
                  //new MenuItems("A026","Create Broker InsuranceSubType","Brokers", "Broker","CreateBrokerInsuranceSubType",null,2),
                //  new MenuItems("A025","Assign ContractID","External", "Users","CreateExternalUser","01",1),

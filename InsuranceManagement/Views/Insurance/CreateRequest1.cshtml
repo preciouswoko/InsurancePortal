@@ -117,7 +117,7 @@
 
             <div class="form-group">
                 <label asp-for="InsuranceTypeId"></label>
-                <select asp-for="selectedInsuranceTypeId" asp-items="Model.InsuranceTypes" class="form-control" id="InsuranceTypeId"name="InsuranceTypeId" required>
+                <select asp-for="selectedInsuranceTypeId" asp-items="Model.InsuranceTypes" class="form-control" id="InsuranceTypeId" name="InsuranceTypeId" required>
                     <option>-- Select  Insurance Type --</option>
                 </select>
 
@@ -125,7 +125,7 @@
 
             <div class="form-group">
                 <label asp-for="InsuranceSubTypeId"></label>
-                <select asp-for="InsuranceSubTypeId" asp-items="Model.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId"required>
+                <select asp-for="InsuranceSubTypeId" asp-items="Model.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId" required>
                     <option>-- Insurance Select Sub Type --</option>
                 </select>
 
@@ -149,7 +149,7 @@
 
 
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
     </div>
 </form>
 
@@ -341,7 +341,11 @@
             branchcodeDiv.style.display = "none"; // Hide the div
         }
     });
-
+    // Function to disable the submit button
+    function disableSubmitButton() {
+        document.getElementById('submitButton').disabled = true;
+        return true;
+    }
     $(document).ready(function () {
         setTimeout(function () {
             $("#resultMessage").fadeOut('slow');

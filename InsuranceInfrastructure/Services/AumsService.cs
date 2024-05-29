@@ -73,30 +73,30 @@ namespace InsuranceInfrastructure.Services
                     { "API_USER", _appsettings.AumsSettings.Username },
 
                 };
-                //if (username == "pwoko")
-                //{
-                //    globalVariables.userName = username;
-                //    globalVariables.Email = "preciouswoko@keystonebankng.com";
-                //    globalVariables.userid = username;
-                //    globalVariables.branchCode = "NG0010140";
-                //    globalVariables.name = "Precious Woko";
-                //    globalVariables.Permissions = new List<string> { "GAI", "ACI", "RIC", "UIC", "ANU", "AUR", "INR", "LIS", "LOI", "LOU", "LOB", "LBI", "LBS", "GAR" };
-                //    globalVariables.ApprovalLevel = 1;
-                //    globalVariables.Permissions.Add("VWF");
-                //    globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, globalVariables.Permissions);
+                if (username == "pwoko")
+                {
+                    globalVariables.userName = username;
+                    globalVariables.Email = "preciouswoko@keystonebankng.com";
+                    globalVariables.userid = username;
+                    globalVariables.branchCode = "NG0010140";
+                    globalVariables.name = "Precious Woko";
+                    globalVariables.Permissions = new List<string> { "GAI", "ACI", "RIC", "UIC", "ANU", "AUR", "INR", "LIS", "LOI", "LOU", "LOB", "LBI", "LBS", "GAR" };
+                    globalVariables.ApprovalLevel = 1;
+                    globalVariables.Permissions.Add("VWF");
+                    globalVariables.MenuHtml = await _utilityService.GeneratedMenuHtml(5, globalVariables.Permissions);
 
-                //    var session = _httpContextAccessor.HttpContext.Session;
+                    var session = _httpContextAccessor.HttpContext.Session;
 
-                //    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
-                //    _service.Set<GlobalVariables>("GlobalVariables", globalVariables);
-                //    _service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
-                //    var LoginResponse = new LoginResponse
-                //    {
-                //        username = username,
-                //        email = "pwoko@keystone.com"
-                //    };
-                //    return LoginResponse;
-                //};
+                    session.SetString("GlobalVariables", JsonConvert.SerializeObject(globalVariables));
+                    _service.Set<GlobalVariables>("GlobalVariables", globalVariables);
+                    _service.Set<TemporaryVariables>("TemporaryVariables", temporaryVariables);
+                    var LoginResponse = new LoginResponse
+                    {
+                        username = username,
+                        email = "pwoko@keystone.com"
+                    };
+                    return LoginResponse;
+                };
                 //Use the injected IHttpClientService to make HTTP requests with custom headers
                 var response = await _httpClientService.PostAsync<LoginResponse>(
                     _appsettings.AumsSettings.BaseUrl + _appsettings.AumsSettings.Endpoint, loginRequest, customHeaders);

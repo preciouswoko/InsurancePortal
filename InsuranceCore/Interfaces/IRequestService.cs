@@ -28,11 +28,11 @@ namespace InsuranceCore.Interfaces
         Task<DataTablesResponse> FetchInsurancesForDataTableAsync(DataTablesRequest request);
         Task<Request> GetRequestDetailsForInsuranceRequestsAsync1(string requestId);
         Task<IEnumerable<InsuranceTable>> GetInsuranceByRequester(string email);
-
+        Task<string> AuthorizeRequest(InsuranceTable Insurance);
         Task<InsuranceType> GetInsuranceTypebyId(int requestid);
         List<PermissionInfo> MapPermissions(List<string> permissionsList);
         CommentStatus GetEnumValueByIndex1(int index);
-
+        Task<IEnumerable<Request>> GetAllwithoutInclude(string stage);
         string UpdateRequest(Request request, InsuranceTable Insurance, string email, string name, string comment);
         Task<Underwriter> GetUnderwritebyId(int requestid);
         Task<bool> SetContractId(Request request);

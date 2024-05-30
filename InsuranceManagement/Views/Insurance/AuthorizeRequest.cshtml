@@ -55,7 +55,7 @@ else
                 <th>Account Number</th>
                 <th>Account Name</th>
                 <th>Customer Name</th>
-                <th>Broker</th>
+                <th>Premium</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -66,7 +66,7 @@ else
                     <td>@record.AccountNumber</td>
                     <td>@record.AccountName</td>
                     <td>@record.CustomerName</td>
-                    <td>@record.Broker</td>
+                    <td>@record.EstimatedPremium</td>
                     <td>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal_@record.RequestId">
                             View
@@ -113,7 +113,7 @@ else
                                     <th>Estimated Premium</th>
                                     <td>@record.EstimatedPremium</td>
                                 </tr>
-                                <tr>
+                                @*<tr>
                                     <th>Insurance Type</th>
                                     <td>@record.InsuranceType</td>
                                 </tr>
@@ -124,7 +124,7 @@ else
                                 <tr>
                                     <th>Broker</th>
                                     <td>@record.Broker</td>
-                                </tr>
+                                </tr>*@
                             </tbody>
                         </table>
 

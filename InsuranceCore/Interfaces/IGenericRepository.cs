@@ -23,6 +23,7 @@ namespace InsuranceCore.Interfaces
         Task<TEntity> GetByIdAsync(object id);
         Task<TEntity> GetWithIncludeAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties);
         IQueryable<TEntity> GetBaseQuery();
+        Task<IEnumerable<TEntity>> GetWithIncludeOrderby(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>> orderBy, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<TEntity> GetLastWithPredicate(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>> orderBy);
         Task<IEnumerable<TEntity>> GetAllWithQuery(IQueryable<TEntity> query);
         Task ExecuteScriptAsync(string connectionString, string sqlScript, object[] sqlParameters);

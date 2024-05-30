@@ -12,6 +12,7 @@ namespace InsuranceInfrastructure.Util
         public string MailServer { get; set; }
         public string SourceEmail { get; set; }
         public string CC { get; set; }
+        public string FI { get; set; }
         public string BasePortalURL { get; set; }
         public string GLAccountNumber { get; set; }
         public AumsSettings AumsSettings { get; set; }

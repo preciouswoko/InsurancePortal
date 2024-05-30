@@ -128,6 +128,19 @@ namespace InsuranceInfrastructure.Repositories
 
             return await query.Where(predicate).ToListAsync();
         }
+        public async Task<IEnumerable<TEntity>> GetWithIncludeOrderby( Expression<Func<TEntity, bool>> predicate,Expression<Func<TEntity, object>> orderBy,params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.Where(predicate)
+                              .OrderByDescending(orderBy)
+                              .ToListAsync();
+        }
 
         public async Task<IEnumerable<TEntity>> GetWithIncludeNoTrackingAsync(Expression<Func<TEntity, bool>> predicate,
                                                                              params Expression<Func<TEntity, object>>[] includeProperties)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -10,8 +11,8 @@ namespace InsuranceManagement.ViewModels
     public class AssignUnderwriterViewModel
     {
         public long RequestId { get; set; }
-       
-        
+
+
         [DisplayName("Customer ID")]
         public string CustomerID { get; set; }
         public string AccountName { get; set; }
@@ -20,16 +21,35 @@ namespace InsuranceManagement.ViewModels
         public string AccountNumber { get; set; }
         public decimal UpdatedPremium { get; set; }
         public decimal Premium { get; set; }
-        [DisplayName("Insurance Type")]
-        public string InsuranceType { get; set; }
-        [DisplayName("Insurance SubType")]
-        public string InsuranceSubType { get; set; }
-        [DisplayName("Broker Name")]
-        public string Broker { get; set; }
+       
         public string RequestType { get; set; }
         public string CollateralValue { get; set; }
         public string Comment { get; set; }
-        public List<Underwriters> Underwriters { get; set; }
+        [Required]
+        [DisplayName("Broker")]
+        public int? BrokerId { get; set; }
+        [Required]
+        [DisplayName("Underwriter")]
+        public int? UnderwriterId { get; set; }
+        public IEnumerable<SelectListItem> Brokers { get; set; }
+        [Required]
+        [DisplayName("Insurance Type")]
+        public int? InsuranceTypeId { get; set; }
+
+        public IEnumerable<SelectListItem> InsuranceTypes { get; set; }
+        [DisplayName("Insurance Sub Type")]
+        public int? InsuranceSubTypeId { get; set; }
+
+        public IEnumerable<SelectListItem> InsuranceSubTypes { get; set; }
+        public int selectedBrokerId { get; set; }
+        public int selectedInsuranceTypeId { get; set; }
+        public int selectedInsuranceSubTypeId { get; set; }
+        // public List<Underwriters> Underwriters { get; set; }
+        public IEnumerable<SelectListItem> Underwriters { get; set; }
+        public int selectedUnderwriterId { get; set; }
+
+        
+       
     }
     public class Underwriters
     {

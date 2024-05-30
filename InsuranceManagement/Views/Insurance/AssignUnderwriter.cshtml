@@ -3,204 +3,183 @@
 @{
     ViewData["Title"] = "AssignUnderwriter";
     Layout = "~/Views/Shared/_Layout2.cshtml";
-
-
 }
 
 <h2 style="text-align: center;">Assign Underwriter</h2>
 <div class="container-fluid">
-    @{
-        if (ViewData["Error"] != null || ViewData["Message"] != null)
+    @if (ViewData["Error"] != null || ViewData["Message"] != null)
+    {
+        string alertType = ViewData["Error"] != null ? "danger" : "success";
+        string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
+        string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
+        string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
+        <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="d-flex align-items-center">
+                <i class="fa @alertIcon me-2"></i>
+                <div>
+                    <h5 class="alert-heading">@alertHeading</h5>
+                    <p id="alert-message">@alertMessage</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <p>No records to display.</p>
+    }
+    else
+    {
+        <input type="text" id="searchTerm" placeholder="Search by account number...">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Account Number</th>
+                    <th>Account Name</th>
+                    <th>Customer Name</th>
+                    <th>Premium</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model)
+                {
+                    <tr>
+                        <td>@record.AccountNumber</td>
+                        <td>@record.AccountName</td>
+                        <td>@record.CustomerName</td>
+                        <td>@record.UpdatedPremium</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal_@record.RequestId">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @foreach (var record in Model)
         {
-            string alertType = ViewData["Error"] != null ? "danger" : "success";
-            string alertIcon = ViewData["Error"] != null ? "fa-exclamation-circle" : "fa-check-circle";
-            string alertHeading = ViewData["Error"] != null ? "Error!" : "Success!";
-            string alertMessage = ViewData["Error"] != null ? ViewData["Error"].ToString() : ViewData["Message"].ToString();
-            <div class="alert alert-@alertType alert-dismissible fade show" role="alert" id="dynamic-alert">
-                <!-- Add cancel button with icon at the top -->
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <div class="d-flex align-items-center">
-                    <i class="fa @alertIcon me-2"></i>
-                    <div>
-                        <h5 class="alert-heading">@alertHeading</h5>
-                        <p id="alert-message">@alertMessage</p>
+            <div class="modal fade" id="myModal_@record.RequestId" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">Details for Request ID: @record.RequestId</h4>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th>Account Number</th>
+                                        <td>@record.AccountNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Account Name</th>
+                                        <td>@record.AccountName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Customer Name</th>
+                                        <td>@record.CustomerName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Customer ID</th>
+                                        <td>@record.CustomerID</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Customer Email</th>
+                                        <td>@record.CustomerEmail</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Collateral Value</th>
+                                        <td>@record.CollateralValue</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estimated Premium</th>
+                                        <td>@record.UpdatedPremium</td>
+                                    </tr>
+                                   
+                                </tbody>
+                            </table>
+
+                            <form asp-action="AssignUnderwriter" asp-route-requestId="@record.RequestId" method="post">
+                                <div class="form-group">
+                                    <label asp-for="@record.BrokerId"></label>
+                                    <select asp-for="@record.selectedBrokerId" asp-items="@record.Brokers" class="form-control" id="BrokerId" name="brokerId" required>
+                                        <option>-- Select Broker --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="@record.InsuranceTypeId"></label>
+                                    <select asp-for="@record.selectedInsuranceTypeId" asp-items="@record.InsuranceTypes" class="form-control" id="InsuranceTypeId" name="InsuranceTypeId" required>
+                                        <option>-- Select Insurance Type --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="@record.InsuranceSubTypeId"></label>
+                                    <select asp-for="@record.selectedInsuranceSubTypeId" asp-items="@record.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId" required>
+                                        <option>-- Select Insurance Sub Type --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="@record.UnderwriterId"></label>
+                                    <select asp-for="@record.selectedUnderwriterId" asp-items="@record.Underwriters" class="form-control" id="UnderwriterId" name="UnderwriterId" required>
+                                        <option>-- Select Underwriter --</option>
+                                    </select>
+                                </div>
+
+                                @if (record.RequestType != "Renewal")
+                                {
+                                    <div class="form-group">
+                                        <label asp-for="@record.Premium" class="control-label">Estimated Premium</label>
+                                        <input asp-for="@record.Premium" class="form-control" required step="0.01" name="premium" id="premiumInput" />
+                                        <span asp-validation-for="@record.Premium" class="text-danger"></span>
+                                    </div>
+                                }
+
+                                <div class="form-group">
+                                    <label for="approvalStatus">Action:</label>
+                                    <select class="form-control" required id="approvalStatus" name="approvalStatus">
+                                        <option value="">-- Select Status --</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Rejected">Rejected</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="comment">Comment:</label>
+                                    <textarea class="form-control" id="comment" name="comment" required></textarea>
+                                </div>
+                                <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
+
+                                @*<button type="submit" id="submitButton" class="btn btn-primary" onclick="disableSubmitButton()">Submit</button>*@
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     }
-
 </div>
-<!-- Display success or error message -->
-@*@if (TempData.ContainsKey("ResultMessage"))
-{
-    <div class="alert @((TempData["ResultMessage"].ToString().StartsWith("Success")) ? "alert-success" : "alert-danger")" id="resultMessage">
-        @TempData["ResultMessage"]
-    </div>
-}*@
-@if (Model.Count == 0)
-{
-    <p>No records to display.</p>
-}
-else
-{
-    <input type="text" id="searchTerm" placeholder="Search by account number...">
-    <!-- Table to display records -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Account Number</th>
-                <th>Account Name</th>
-                <th>Customer Name</th>
-                <th>Broker</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var record in Model)
-            {
-                <tr>
-                    <td>@record.AccountNumber</td>
-                    <td>@record.AccountName</td>
-                    <td>@record.CustomerName</td>
-                    <td>@record.Broker</td>
-                    <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal_@record.RequestId">
-                            View
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
 
-    <!-- Modal for each record -->
-    @foreach (var record in Model)
-    {
-        <div class="modal fade" id="myModal_@record.RequestId" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">@*Details for Request ID: @record.RequestId*@</h4>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table table-bordered">
-                            <tbody>
-                                <tr>
-                                    <th>Account Number</th>
-                                    <td>@record.AccountNumber</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <td>@record.AccountName</td>
-                                </tr>
-                                <tr>
-                                    <th>Customer Name</th>
-                                    <td>@record.CustomerName</td>
-                                </tr>
-                                <tr>
-                                    <th>Customer ID</th>
-                                    <td>@record.CustomerID</td>
-                                </tr>
-                                <tr>
-                                    <th>Customer Email</th>
-                                    <td>@record.CustomerEmail</td>
-                                </tr>
-                                <tr>
-                                    <th>CollateralValue</th>
-                                    <td>@record.CollateralValue</td>
-                                </tr>
-                                <tr>
-                                    <th>Estimated Premium</th>
-                                    <td>@record.UpdatedPremium</td>
-                                </tr>
-                                <tr>
-                                    <th>Insurance Type</th>
-                                    <td>@record.InsuranceType</td>
-                                </tr>
-                                <tr>
-                                    <th>Insurance SubType</th>
-                                    <td>@record.InsuranceSubType</td>
-                                </tr>
-                                <tr>
-                                    <th>Broker</th>
-                                    <td>@record.Broker</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Form for submitting Underwriters  -->
-                        <form asp-action="AssignUnderwriter" asp-route-requestId="@record.RequestId" method="post">
-
-                            <div class="form-group">
-                                <label for="SelectedUnderwriter">Underwriter:</label>
-                                <select class="form-control" id="SelectedUnderwriter" name="SelectedUnderwriter">
-                                    <option value="">Select an Underwriter</option>
-                                    @foreach (var underwriter in record.Underwriters)
-                                    {
-                                        <option value="@underwriter.Id">@underwriter.Underwrite</option>
-                                    }
-                                </select>
-                            </div>
-                            @if (@record.RequestType != "Renewal")
-                            {
-                                <div class="form-group">
-                                    <strong>
-                                        <label asp-for="@record.Premium" class="control-label">Estimated Premium</label>
-                                        <input asp-for="@record.Premium" class="form-control" required step="0.01" name="premium" id="premiumInput" />
-                                        <span asp-validation-for="@record.Premium" class="text-danger"></span>
-                                    </strong>
-                                </div>
-                            }
-                            <div class="form-group">
-                                <label for="approvalStatus">Action:</label>
-                                <select class="form-control" required id="approvalStatus" name="approvalStatus">
-                                    <option value="">-- Select Status --</option>
-                                    <option value="Approved">Approved</option>
-                                    <option value="Rejected">Rejected</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="comment">Comment:</label>
-                                <textarea class="form-control" id="comment" name="comment" required></textarea>
-                            </div>
-                            <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    }
-}
-<!-- Your HTML code here -->
-<!-- JavaScript code -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script src="~/assets/bundles/libscripts.bundle.js"></script>
-@*<script src="~/assets/bundles/mainscripts.bundle.js"></script>*@
 <script src="~/assets/bundles/vendorscripts.bundle.js"></script>
 
 <script>
     function format(value) {
-        return value.toLocaleString('en-US'/*, { minimumFractionDigits: 2 }*/);
+        return value.toLocaleString('en-US');
     }
 
-    // Event listener for the input field
-    //const premiumInput = document.getElementById('premiumInput');
-    //premiumInput.addEventListener('input', function () {
-    //    const inputValue = parseFloat(this.value.replace(/[^0-9.]/g, ''));
-    //    if (!isNaN(inputValue)) {
-    //        this.value = format(inputValue);
-    //    }
-    //});
     const premiumInput = document.getElementById('premiumInput');
     premiumInput.oninput = function () {
         var sanitizedInput = this.value.replace(/[^0-9.]/g, '');
@@ -215,9 +194,45 @@ else
         this.value = formattedInput;
     };
 
+    $('#BrokerId').change(function () {
+        var selectedBrokerId = $(this).val();
+        console.log('Selected Broker ID: ' + selectedBrokerId);
+        $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
+            $('#InsuranceTypeId').empty();
+            $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Insurance Type --' }));
+            $.each(data, function (index, item) {
+                $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Types loaded.');
+        });
+
+        // Fetch Underwriters based on the selected Broker
+        $.get('/Insurance/GetUnderwriters', { brokerId: selectedBrokerId }, function (data) {
+            $('#UnderwriterId').empty();
+            $('#UnderwriterId').append($('<option>', { value: '', text: '-- Select Underwriter --' }));
+            $.each(data, function (index, item) {
+                $('#UnderwriterId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Underwriters loaded.');
+        });
+    });
+
+    $('#InsuranceTypeId').change(function () {
+        var selectedInsuranceTypeId = $(this).val();
+        console.log('Selected Insurance Type ID: ' + selectedInsuranceTypeId);
+        $.get('/Insurance/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
+            $('#InsuranceSubTypeId').empty();
+            $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Insurance Sub Type --' }));
+            $.each(data, function (index, item) {
+                $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
+            });
+            console.log('Insurance Sub Types loaded.');
+        });
+    });
+
+  
 
     const searchInput = document.getElementById('searchTerm');
-
     searchInput.addEventListener('keyup', (e) => {
         if (e.key === "Enter") {
             searchByAccountNumber();
@@ -225,43 +240,46 @@ else
     });
 
     function searchByAccountNumber() {
-        const searchTerm1 = searchInput.value;
+        const searchTerm = searchInput.value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
-
         rows.forEach(row => {
             const accountNumberCell = row.querySelector('td:first-child');
-
-            if (!accountNumberCell.textContent.includes(searchTerm1)) {
-                row.style.display = 'none';
-            } else {
+            const accountNumber = accountNumberCell.textContent.toLowerCase();
+            if (accountNumber.includes(searchTerm)) {
                 row.style.display = '';
+            } else {
+                row.style.display = 'none';
             }
         });
-
-        // Show "No results" if needed
         showNoResultsMessage();
     }
 
     function showNoResultsMessage() {
         const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
-
-        if (visibleRows.length == 0) {
-            // Show no results message (implement this)
+        if (visibleRows.length === 0) {
+            if (!document.getElementById('noResultsMessage')) {
+                const noResultsMessage = document.createElement('p');
+                noResultsMessage.id = 'noResultsMessage';
+                noResultsMessage.textContent = 'No results found.';
+                document.querySelector('tbody').parentNode.appendChild(noResultsMessage);
+            }
         } else {
-            // Hide no results message (implement this)
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            if (noResultsMessage) {
+                noResultsMessage.remove();
+            }
         }
     }
-    // Function to disable the submit button
+
     function disableSubmitButton() {
         document.getElementById('submitButton').disabled = true;
         return true;
     }
-    // Initially filter on page load
-    searchByAccountNumber();
 
     $(document).ready(function () {
         setTimeout(function () {
             $("#resultMessage").fadeOut('slow');
         }, 5000);
+        searchByAccountNumber(); // Initially filter on page load
     });
 </script>

@@ -24,29 +24,14 @@ namespace InsuranceManagement.ViewModels
         public string CustomerId { get; set; }
         [Required]
         public string CustomerEmail { get; set; }
-        [Required]
-        [DisplayName("Broker")]
-        public int BrokerId { get; set; }
-
-        public IEnumerable<SelectListItem> Brokers { get; set; }
+       
 
         [Display(Name = "Collateral Value FSV")]
         public string CollateralValue { get; set; }
         [Required]
         [Display(Name = "Premium")]
         public string EstimatedPremium { get; set; }
-        [Required]
-        [DisplayName("Insurance Type")]
-        public int InsuranceTypeId { get; set; }
-
-        public IEnumerable<SelectListItem> InsuranceTypes { get; set; }
-        [DisplayName("Insurance Sub Type")]
-        public int? InsuranceSubTypeId { get; set; }
-
-        public IEnumerable<SelectListItem> InsuranceSubTypes { get; set; }
-        public int SelectedBrokerId { get; set; }
-        public int selectedInsuranceTypeId { get; set; }
-        public int selectedInsuranceSubTypeId { get; set; }
+       
         public string Branchcode { get; set; }
     }
 }

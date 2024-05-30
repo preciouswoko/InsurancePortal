@@ -502,7 +502,7 @@ namespace InsuranceInfrastructure.Migrations
                         .HasColumnType("varchar(10)")
                         .HasMaxLength(10);
 
-                    b.Property<int>("BrokerID");
+                    b.Property<int?>("BrokerID");
 
                     b.Property<decimal>("CollateralValue")
                         .HasColumnType("decimal(18,2)");
@@ -530,7 +530,7 @@ namespace InsuranceInfrastructure.Migrations
 
                     b.Property<int?>("InsuranceSubTypeID");
 
-                    b.Property<int>("InsuranceTypeId");
+                    b.Property<int?>("InsuranceTypeId");
 
                     b.Property<decimal>("Premium")
                         .HasColumnType("decimal(18,2)");
@@ -637,8 +637,7 @@ namespace InsuranceInfrastructure.Migrations
                 {
                     b.HasOne("InsuranceCore.Models.Broker", "Broker")
                         .WithMany()
-                        .HasForeignKey("BrokerID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("BrokerID");
 
                     b.HasOne("InsuranceCore.Models.BrokerSubInsuranceType", "InsuranceSubType")
                         .WithMany()

@@ -347,43 +347,7 @@ namespace InsuranceCore.Implementations
             }
 
         }
-        public async Task<string> AuthorizeRequest(InsuranceTable Insurance)
-        {
-            try
-            {
-                var getrequest = await _reqRepo.GetWithIncludeAsync(
-                    x => (x.RequestID == Insurance.RequestID &&  x.Status != CommentStatus.Closed.ToString()/*x.Status == BrokerStatus.Active.ToString()*/),
-                    x => x.Broker,
-                    x => x.InsuranceType,
-                    x => x.InsuranceSubType
-                    );
-                Insurance.Stage = InsuranceStage.UnderwriterAssigned.ToString();
-
-                // Save changes
-                _InsuranceTbRepo.Update(Insurance);
-
-                string emailBody = 
-                    $"We are pleased to inform you that Request {getrequest.RequestID} has been assigned to you. See details below:.<br><br>" +
-                    "Details:<br>" +
-                    "Request Type: Insurance Request<br>" +
-                    $"Customer Name: {getrequest.CustomerName}<br>" +
-                    $"Customer Email: {getrequest.CustomerEmail}<br>" +
-                    $"Insurance SubType Name: {getrequest.InsuranceSubType.Name}<br><br>" +
-                    "Thank you for using our services.<br>";
-                   
-                string body = _utilityService.BuildEmailTemplate(getrequest.Broker.BrokerName, "New insurance request assigned", emailBody);
-
-                _emailService.SmtpSendMail(getrequest.Broker.EmailAddress, body, "New insurance request assigned");
-                return "Successfully";
-            }
-            catch (Exception ex)
-            {
-                _logging.LogError(ex.ToString(), "AuthorizeRequest");
-                Insurance.ErrorMessage = ex.InnerException.ToString();
-                var updateRepuest = _InsuranceTbRepo.Update(Insurance);
-                return "UnSuccessful";
-            }
-        }
+       
         // Upload certificate
         public async Task<string> GetRelativePath(string base64String, string contentType, string file_name)
         {

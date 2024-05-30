@@ -69,16 +69,14 @@ namespace InsuranceCore.Models
         public string ContractID { get; set; }
 
 
-        [Required]
         [DisplayName("Broker")]
-        public int BrokerID { get; set; }
+        public int? BrokerID { get; set; }
 
         [ForeignKey("BrokerID")]
         public virtual Broker Broker { get; set; }
 
-        [Required]
         [DisplayName("Insurance Type")]
-        public int InsuranceTypeId { get; set; }
+        public int? InsuranceTypeId { get; set; }
 
         [ForeignKey("InsuranceTypeId")]
         //public virtual InsuranceType InsuranceType { get; set; }

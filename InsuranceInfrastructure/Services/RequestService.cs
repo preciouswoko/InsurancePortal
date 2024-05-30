@@ -442,6 +442,22 @@ namespace InsuranceInfrastructure.Services
             }
             return requests;
         }
+        public async Task<IEnumerable<Request>> GetAllwithoutInclude(string stage)
+        {
+            var requests = new List<Request>();
+            var insuranceRequests = await _InsuranceTbRepo.GetWithIncludeOrderby(
+                r => r.Stage == stage, i => i.ID
+                );
+            foreach (var item in insuranceRequests)
+            {
+                var request = await _reqRepo.GetWithIncludeAsync(
+                    x => (x.RequestID == item.RequestID &&  x.Status != CommentStatus.Closed.ToString())
+                  
+                    );
+                requests.Add(request);
+            }
+            return requests;
+        }
         public async Task<IEnumerable<Request>> GetAllNeeded1(string stage, string branchCode)
         {
             var requests = new List<Request>();
@@ -1752,6 +1768,47 @@ namespace InsuranceInfrastructure.Services
             }
 
             return permissionInfos;
+        }
+        public async Task<string> AuthorizeRequest(InsuranceTable Insurance)
+        {
+            try
+            {
+                var getrequest = await _reqRepo.GetWithIncludeAsync(
+                    x => (x.RequestID == Insurance.RequestID && x.Status != CommentStatus.Closed.ToString()/*x.Status == BrokerStatus.Active.ToString()*/)
+                    //,x => x.Broker,
+                    //x => x.InsuranceType,
+                    //x => x.InsuranceSubType
+                    );
+                Insurance.Stage = InsuranceStage.UnderwriterAssigned.ToString();
+
+                // Save changes
+                _InsuranceTbRepo.Update(Insurance);
+
+                string emailBody =
+                    $"We are pleased to inform you that Request {getrequest.RequestID} has been assigned to you. See details below:.<br><br>" +
+                    "Details:<br>" +
+                    "Request Type: Insurance Request<br>" +
+                    $"Customer Name: {getrequest.CustomerName}<br>" +
+                    $"Customer Email: {getrequest.CustomerEmail}<br>" +
+                    //$"Insurance SubType Name: {getrequest.InsuranceSubType.Name}<br><br>" +
+                    "Thank you for using our services.<br>";
+                string email = _appsettings.FI; 
+
+                string[] parts = email.Split('@');
+
+                string firstPart = parts[0];
+                string body = _utilityService.BuildEmailTemplate(parts[0], "New insurance request assigned", emailBody);
+
+                _emailService.SmtpSendMail(email, body, "New insurance request assigned");
+                return "Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString(), "AuthorizeRequest");
+                Insurance.ErrorMessage = ex.InnerException.ToString();
+                var updateRepuest = _InsuranceTbRepo.Update(Insurance);
+                return "UnSuccessful";
+            }
         }
     }
 }

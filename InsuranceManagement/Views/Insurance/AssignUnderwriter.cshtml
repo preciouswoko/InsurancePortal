@@ -101,7 +101,14 @@
                                         <th>Estimated Premium</th>
                                         <td>@record.UpdatedPremium</td>
                                     </tr>
-                                   
+                                    <tr>
+                                        <th>Insurance Type</th>
+                                        <td>@record.InsuranceType</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Insurance SubType</th>
+                                        <td>@record.InsuranceSubType</td>
+                                    </tr>
                                 </tbody>
                             </table>
 
@@ -113,19 +120,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group">
-                                    <label asp-for="@record.InsuranceTypeId"></label>
-                                    <select asp-for="@record.selectedInsuranceTypeId" asp-items="@record.InsuranceTypes" class="form-control" id="InsuranceTypeId" name="InsuranceTypeId" required>
-                                        <option>-- Select Insurance Type --</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label asp-for="@record.InsuranceSubTypeId"></label>
-                                    <select asp-for="@record.selectedInsuranceSubTypeId" asp-items="@record.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId" required>
-                                        <option>-- Select Insurance Sub Type --</option>
-                                    </select>
-                                </div>
+                             
 
                                 <div class="form-group">
                                     <label asp-for="@record.UnderwriterId"></label>
@@ -194,41 +189,7 @@
         this.value = formattedInput;
     };
 
-    $('#BrokerId').change(function () {
-        var selectedBrokerId = $(this).val();
-        console.log('Selected Broker ID: ' + selectedBrokerId);
-        $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
-            $('#InsuranceTypeId').empty();
-            $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Insurance Type --' }));
-            $.each(data, function (index, item) {
-                $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
-            });
-            console.log('Insurance Types loaded.');
-        });
-
-        // Fetch Underwriters based on the selected Broker
-        $.get('/Insurance/GetUnderwriters', { brokerId: selectedBrokerId }, function (data) {
-            $('#UnderwriterId').empty();
-            $('#UnderwriterId').append($('<option>', { value: '', text: '-- Select Underwriter --' }));
-            $.each(data, function (index, item) {
-                $('#UnderwriterId').append($('<option>', { value: item.value, text: item.text }));
-            });
-            console.log('Underwriters loaded.');
-        });
-    });
-
-    $('#InsuranceTypeId').change(function () {
-        var selectedInsuranceTypeId = $(this).val();
-        console.log('Selected Insurance Type ID: ' + selectedInsuranceTypeId);
-        $.get('/Insurance/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
-            $('#InsuranceSubTypeId').empty();
-            $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Insurance Sub Type --' }));
-            $.each(data, function (index, item) {
-                $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
-            });
-            console.log('Insurance Sub Types loaded.');
-        });
-    });
+  
 
   
 

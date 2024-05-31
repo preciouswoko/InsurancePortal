@@ -191,7 +191,7 @@ namespace InsuranceCore.Implementations
             return await _reqRepo.GetWithIncludeAsync(
                   x => (x.RequestID == requestid && x.Status != CommentStatus.Closed.ToString()),
                   x => x.Broker,
-                  x => x.InsuranceType.InsuranceType,
+                  x => x.InsuranceType,
                   x => x.InsuranceSubType
                   );
 
@@ -209,7 +209,31 @@ namespace InsuranceCore.Implementations
         {
             return await _BrokerRepo.GetAllWithPredicate(x => x.Status != BrokerStatus.Disable.ToString() && x.Status != BrokerStatus.Inactive.ToString());
         }
-       
+        public async Task<List<Broker>> GetAllBroker(int insuranceTypeId, int insuranceSubTypeID)
+        {
+            List<Broker> brokers = new List<Broker>();
+
+            var getinsuranceSubTypetrequest = await _insuranceSubTypeRepo.GetWithPredicate(r => r.Id == insuranceSubTypeID && r.InsuranceTypeId == insuranceTypeId);
+            if(getinsuranceSubTypetrequest != null)
+            {
+                var getbrokers = await _brokerinsuranceTypeRepo.GetWithInclude(
+                i => (i.Status != BrokerStatus.Disable.ToString() && i.Status != BrokerStatus.Inactive.ToString() && i.InsuranceTypeId == getinsuranceSubTypetrequest.InsuranceTypeId),
+                
+                i => i.Broker
+                );
+                if (getbrokers.Any())
+                {
+                    foreach(var item in getbrokers)
+                    {
+                        brokers.Add(item.Broker);
+                    }
+                }
+            }
+
+
+
+            return brokers;
+        }
         public async Task<IEnumerable<InsuranceType>> GetAllInsuranceType()
         {
             var insuranceTypes = await _insuranceTypeRepo.GetWithInclude(
@@ -380,9 +404,14 @@ namespace InsuranceCore.Implementations
                 //     CustomerID = request.CustomerID,
                 //     BrokerName = request.CustomerName
                 // };
-                var insert = _BrokerRepo.Insert(request);
-                if (insert == true) return "Successfully";
-                return "UnSuccessful";
+                var existaccountnumber = _BrokerRepo.GetWithPredicate(x => x.AccountNumber == request.AccountNumber && x.Status == BrokerStatus.Active.ToString());
+                if (existaccountnumber == null)
+                {
+                    var insert = _BrokerRepo.Insert(request);
+                    if (insert == true) return "Successfully";
+                }
+              
+                return "UnSuccessful accountnumber already exist";
 
             }
             catch (Exception ex)
@@ -596,14 +625,18 @@ namespace InsuranceCore.Implementations
             try
             {
 
-
-                var insert = _brokerinsuranceSubTypeRepo.Insert(request);
-                //var getinsuranceSub = await _brokerinsuranceSubTypeRepo.GetWithPredicate(x => x.InsuranceTypeId == request.InsuranceTypeId);
-                //var getinsurance = _insuranceTypeRepo.GetById(request.InsuranceTypeId);
-                //getinsurance.InsuranceSubType = getinsuranceSub.Id;
-                //var update = _insuranceTypeRepo.Update(getinsurance);
-                if (insert == true) return "Successfully";
-                return "UnSuccessful";
+                var existbrokerinsuranceSubType = _brokerinsuranceSubTypeRepo.GetWithPredicate(x => x.BrokerId == request.BrokerId && x.BrokerInsuranceTypeId == request.BrokerInsuranceTypeId && x.Status ==  BrokerStatus.Active.ToString());
+                if(existbrokerinsuranceSubType == null)
+                {
+                    var insert = _brokerinsuranceSubTypeRepo.Insert(request);
+                    //var getinsuranceSub = await _brokerinsuranceSubTypeRepo.GetWithPredicate(x => x.InsuranceTypeId == request.InsuranceTypeId);
+                    //var getinsurance = _insuranceTypeRepo.GetById(request.InsuranceTypeId);
+                    //getinsurance.InsuranceSubType = getinsuranceSub.Id;
+                    //var update = _insuranceTypeRepo.Update(getinsurance);
+                    if (insert == true) return "Successfully";
+                }
+               
+                return "UnSuccessful  brokerinsuranceSubType already exist";
 
             }
             catch (Exception ex)
@@ -677,7 +710,7 @@ namespace InsuranceCore.Implementations
                 var request = await _reqRepo.GetWithIncludeAsync(r => r.RequestID == insurance.RequestID,
                     r => r.Broker,
                     r => r.Underwriter,
-                    r => r.InsuranceType.InsuranceType,
+                    r => r.InsuranceType,
                     r => r.InsuranceSubType
                     //r => r.Customer
                     // r => r.ContractId
@@ -723,7 +756,7 @@ namespace InsuranceCore.Implementations
                      DateofIssuance = Convert.ToDateTime(insurance.PolicyIssuanceDate),
                     PolicyExpiryDate = Convert.ToDateTime(insurance.PolicyExpiryDate),
                     PolicyDuration = $"{difference.Days} Days",
-                    InsuranceType = request.InsuranceType.InsuranceType.Name,
+                    InsuranceType = request.InsuranceType.Name,
                     SubInsuranceType = request.InsuranceSubType?.Name,
                     PremiumAmount = request.UpdatedPremium,
                     PremiumCRAccount = request.Broker.AccountNumber,

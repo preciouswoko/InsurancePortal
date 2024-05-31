@@ -23,7 +23,7 @@ namespace InsuranceCore.Interfaces
         string InsertComment(Comments request);
         //string UpdateInsuranceReq(InsuranceTable request);
         Task<Request> Getrequest(string requestid);
-        
+        Task<List<Broker>> GetAllBroker(int insuranceTypeId, int insuranceSubTypeID);
         Task<IEnumerable<InsuranceTable>> BuildInsuranceReport(InsuranceReportViewModel filters);
         bool DeleteBroker(int id);
         bool DeleteUnderwriter(int id);

@@ -639,11 +639,11 @@ namespace InsuranceInfrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("BrokerID");
 
-                    b.HasOne("InsuranceCore.Models.BrokerSubInsuranceType", "InsuranceSubType")
+                    b.HasOne("InsuranceCore.Models.InsuranceSubType", "InsuranceSubType")
                         .WithMany()
                         .HasForeignKey("InsuranceSubTypeID");
 
-                    b.HasOne("InsuranceCore.Models.BrokerInsuranceType", "InsuranceType")
+                    b.HasOne("InsuranceCore.Models.InsuranceType", "InsuranceType")
                         .WithMany()
                         .HasForeignKey("InsuranceTypeId")
                         .OnDelete(DeleteBehavior.Restrict);

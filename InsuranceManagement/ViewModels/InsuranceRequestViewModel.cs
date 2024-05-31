@@ -33,5 +33,17 @@ namespace InsuranceManagement.ViewModels
         public string EstimatedPremium { get; set; }
        
         public string Branchcode { get; set; }
+
+        [Required]
+        [DisplayName("Insurance Type")]
+        public int InsuranceTypeId { get; set; }
+
+        public IEnumerable<SelectListItem> InsuranceTypes { get; set; }
+        [DisplayName("Insurance Sub Type")]
+        public int? InsuranceSubTypeId { get; set; }
+
+        public IEnumerable<SelectListItem> InsuranceSubTypes { get; set; }
+        public int selectedInsuranceTypeId { get; set; }
+        public int selectedInsuranceSubTypeId { get; set; }
     }
 }

@@ -19,7 +19,8 @@ namespace InsuranceCore.Interfaces
         Task<BrokerInsuranceType> GetBrokerInsuranceTypebyId(int requestid);
         Task<string> AssignUnderwriter(InsuranceTable Insurance, Request request);
         Task<List<Request>> GetAllNeededforAuth();
-        Task<decimal> GetPercentageAsync(Request request);
+        // Task<decimal> GetPercentageAsync(Request request);
+        Task<string> GetPercentageAsync(int? brokerID, int? insuranceTypeID);
         string FormatSerial(int serial);
         string GenerateRandomString(int length);
         Task<int> GetPercentage(int id);

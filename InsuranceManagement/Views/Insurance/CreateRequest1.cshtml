@@ -73,10 +73,6 @@
                 </strong>
 
             </div>
-           
-
-        </div>
-        <div class="col-md-6">
             <div class="form-group">
                 <strong>
                     <label asp-for="CustomerId" class="control-label"></label>
@@ -86,6 +82,10 @@
 
             </div>
 
+           
+
+        </div>
+        <div class="col-md-6">
             <div class="form-group">
                 <strong>
                     <label asp-for="CustomerEmail" class="control-label"></label>
@@ -110,6 +110,22 @@
                 </strong>
 
             </div>
+            <div class="form-group">
+                <label asp-for="InsuranceTypeId"></label>
+                <select asp-for="selectedInsuranceTypeId" asp-items="Model.InsuranceTypes" class="form-control" id="InsuranceTypeId" name="InsuranceTypeId" required>
+                    <option>-- Select  Insurance Type --</option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+                <label asp-for="InsuranceSubTypeId"></label>
+                <select asp-for="InsuranceSubTypeId" asp-items="Model.InsuranceSubTypes" class="form-control" id="InsuranceSubTypeId" name="InsuranceSubTypeId" required>
+                    <option>-- Insurance Select Sub Type --</option>
+                </select>
+
+            </div>
+
             <div id="branchcodeDiv" class="form-group">
                 <strong>
                     <label asp-for="Branchcode" class="control-label"></label>
@@ -195,60 +211,22 @@
     };
 
 
-
-    @*function fetchBrokerId() {
-    console.log("fetchBrokerId called");
-
-    // Corrected the variable name from BrokerId to selectedBrokerId
-    var selectedBrokerId = $('#selectedBrokerId').val();
-    console.log("selectedBrokerId: " + selectedBrokerId);
-
-    $.ajax({
-        // Updated the URL to use proper quotes around the action and controller names
-        url: '@Url.Action("GetInsuranceTypes", "Insurance")',
-        type: 'GET',
-        data: { brokerId: selectedBrokerId },
-        success: function (data) {
-            console.log("AJAX success");
-            $('#InsuranceTypeId').empty(); // Clear previous options
-            $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Type --' }));
+    $('#InsuranceTypeId').change(function () {
+        var selectedInsuranceTypeId = $(this).val();
+        console.log('Selected Insurance Type ID: ' + selectedInsuranceTypeId); // Log selected Insurance Type ID
+        // Make an AJAX call to fetch and populate Insurance Sub Types based on selected Insurance Type
+        $.get('/Insurance/GetInsuranceSubTypesByInsuranceType', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
+            $('#InsuranceSubTypeId').empty(); // Clear previous options
+            $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Insurance Sub Type --' }));
             $.each(data, function (index, item) {
-                $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
+                $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
             });
-            console.log('Insurance Types loaded.'); // Log when Insurance Types are loaded
-        },
-        error: function () {
-            console.log("AJAX error"); // Log if there's an error
-        }
+            console.log('Insurance Sub Types loaded.'); // Log when Insurance Sub Types are loaded
+            //window.location.reload();
+        });
     });
-}*@
 
-    // Cascade sub types
-   
 
-    //$('#BrokerId').change(function () {
-    //    var selectedBrokerId = $(this).val();
-    //    // Make an AJAX call to fetch and populate Insurance Types based on selected Broker
-    //    $.get('/Insurance/GetInsuranceTypes', { brokerId: selectedBrokerId }, function (data) {
-    //        $('#InsuranceTypeId').empty(); // Clear previous options
-    //        $('#InsuranceTypeId').append($('<option>', { value: '', text: '-- Select Type --' }));
-    //        $.each(data, function (index, item) {
-    //            $('#InsuranceTypeId').append($('<option>', { value: item.value, text: item.text }));
-    //        });
-    //    });
-    //});
-
-    //$('#InsuranceTypeId').change(function () {
-    //    var selectedInsuranceTypeId = $(this).val();
-    //    // Make an AJAX call to fetch and populate Insurance Sub Types based on selected Insurance Type
-    //    $.get('/Insurance/GetInsuranceSubTypes', { insuranceTypeId: selectedInsuranceTypeId }, function (data) {
-    //        $('#InsuranceSubTypeId').empty(); // Clear previous options
-    //        $('#InsuranceSubTypeId').append($('<option>', { value: '', text: '-- Select Sub Type --' }));
-    //        $.each(data, function (index, item) {
-    //            $('#InsuranceSubTypeId').append($('<option>', { value: item.value, text: item.text }));
-    //        });
-    //    });
-    //});
 
     function fetchAccountDetails()
     {

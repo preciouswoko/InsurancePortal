@@ -80,14 +80,14 @@ namespace InsuranceCore.Models
 
         [ForeignKey("InsuranceTypeId")]
         //public virtual InsuranceType InsuranceType { get; set; }
-        public virtual BrokerInsuranceType InsuranceType { get; set; }
+        public virtual InsuranceType InsuranceType { get; set; }
         [DisplayName("Insurance Sub Type")]
 
         public int? InsuranceSubTypeID { get; set; }
 
         [ForeignKey("InsuranceSubTypeID")]
         // public virtual InsuranceSubType InsuranceSubType { get; set; }
-        public virtual BrokerSubInsuranceType InsuranceSubType { get; set; }
+        public virtual InsuranceSubType InsuranceSubType { get; set; }
         [DisplayName("Underwriter")]
         public int? UnderwriterId { get; set; }
         [ForeignKey("UnderwriterId")]

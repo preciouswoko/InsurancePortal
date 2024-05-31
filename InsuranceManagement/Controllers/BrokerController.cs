@@ -147,10 +147,14 @@ namespace InsuranceManagement.Controllers
 
                 // TODO: Add insert logic here
                 var add = _service.CreateBroker(collection);
-             //   _logger.LogInformation($"{_globalVariables.name} created broker with {JsonConvert.SerializeObject(collection)} : result {add}", "CreateBroker");
+                //   _logger.LogInformation($"{_globalVariables.name} created broker with {JsonConvert.SerializeObject(collection)} : result {add}", "CreateBroker");
+                if (add.StartsWith("Success"))
+                {
+                    TempData["ResultMessage"] = " Successfully Created Broker ";
+                    return RedirectToAction(nameof(Index), new { message = "Successfully Created Broker " });
 
-                TempData["ResultMessage"] = " Successfully Created Broker ";
-                return RedirectToAction(nameof(Index), new { message = "Successfully Created Broker " });
+                }
+                return RedirectToAction(nameof(Index), new { message = add });
 
             }
             catch
@@ -453,11 +457,15 @@ namespace InsuranceManagement.Controllers
                 //  var getname = await _service.GetBrokerInsuranceSubTypebyId(Convert.ToInt32(collection.Name));
                 collection.Name = getname.Name;
                 var add = await _service.CreateBrokerInsuranceSubType(collection);
-              //  _logger.LogInformation($"{_globalVariables.name} created broker insurance sub Type with: {JsonConvert.SerializeObject(collection)} : result {add}", "CreateBrokerInsuranceSubType");
+                //  _logger.LogInformation($"{_globalVariables.name} created broker insurance sub Type with: {JsonConvert.SerializeObject(collection)} : result {add}", "CreateBrokerInsuranceSubType");
+                if (add.StartsWith("Success"))
+                {
+                    TempData["ResultMessage"] = "Successfully Created Broker InsuranceSubType";
+                    return RedirectToAction(nameof(BrokerInsuranceSubTypeIndex), new { message = "Successfully Created Broker InsuranceSubType" });
 
-                TempData["ResultMessage"] = "Successfully Created Broker InsuranceSubType";
-               // return RedirectToAction(nameof(BrokerInsuranceSubTypeIndex));
-                return RedirectToAction(nameof(BrokerInsuranceSubTypeIndex), new { message = "Successfully Created Broker InsuranceSubType" });
+                }
+                return RedirectToAction(nameof(CreateBrokerInsuranceSubType), new { message = add });
+             
 
             }
             catch

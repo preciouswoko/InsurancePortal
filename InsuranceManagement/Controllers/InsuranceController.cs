@@ -240,9 +240,10 @@ namespace InsuranceManagement.Controllers
                         CustomerEmail = item.CustomerEmail,
                         AccountNumber = item.AccountNo,
                         EstimatedPremium = item.UpdatedPremium,
-                       // InsuranceType = item.InsuranceType.InsuranceType.Name,/*.Name,*/
+                        InsuranceType = item.InsuranceType.Name,/*.Name,*/
                         //InsuranceType = getInsuranceType.Name,
-                       // InsuranceSubType = item.InsuranceSubType?.Name, /*getInsuranceSubType?.Name ?? null,*/
+                        InsuranceSubType = item.InsuranceSubType?.Name,
+                       /*getInsuranceSubType?.Name ?? null,*/
                       //  Broker = item.Broker.AccountName
                         //,ApprovalStatus = ""
                     };
@@ -482,7 +483,7 @@ namespace InsuranceManagement.Controllers
                         AccountNumber = request.AccountNo,
                         Premium = request.UpdatedPremium,
                         EstimatedPremium = 0,
-                        InsuranceType = request.InsuranceType.InsuranceType.Name,
+                        InsuranceType = request.InsuranceType.Name,
                         InsuranceSubTypes = request.InsuranceSubType?.Name,
                         Broker = request.Broker.BrokerName,
                         Underwrite = request.Underwriter?.Name,
@@ -631,11 +632,14 @@ namespace InsuranceManagement.Controllers
             // Retrieve InsuranceSubTypes based on the selected InsuranceTypeId
             var insuranceSubTypes = await _service.GetInsuranceSubTypesByInsuranceType(insuranceTypeId);
           //  _logging.LogInformation($"{_globalVariables.name} requested Insurance SubTypes ByInsuranceType  {JsonConvert.SerializeObject(insuranceSubTypes)} at {DateTime.Now} ", "GetInsuranceSubTypesByInsuranceType");
+            var insuranceTypeItems = insuranceSubTypes.Select(type => new SelectListItem
+            {
+                Value = type.Id.ToString(),
+                Text = type.Name
+            });
 
-            // Convert InsuranceSubTypes to a SelectList
-            var selectList = new SelectList(insuranceSubTypes, "Value", "Text");
-
-            return Json(selectList);
+            return Json(insuranceTypeItems);
+          
         }
 
 
@@ -710,7 +714,7 @@ namespace InsuranceManagement.Controllers
                         CustomerEmail = item.CustomerEmail,
                         AccountNumber = item.AccountNo,
                         EstimatedPremium = item.UpdatedPremium,
-                        InsuranceType = item.InsuranceType.InsuranceType.Name,
+                        InsuranceType = item.InsuranceType.Name,
                         InsuranceSubType = item.InsuranceSubType?.Name,
                         Broker = item.Broker.BrokerName,
                         Underwrite = item.Underwriter.Name,
@@ -832,7 +836,7 @@ namespace InsuranceManagement.Controllers
                         CustomerEmail = request.CustomerEmail,
                         AccountNumber = request.AccountNo,
                         Premium = request.UpdatedPremium,
-                        InsuranceType = request.InsuranceType.InsuranceType.Name,
+                        InsuranceType = request.InsuranceType.Name,
                         InsuranceSubType = request.InsuranceSubType?.Name,
                         Broker = request.Broker.BrokerName,
                         Underwrite = request.Underwriter.Name,
@@ -1045,10 +1049,15 @@ namespace InsuranceManagement.Controllers
                     {
                         continue;
                     }
-                  //  var model = new InsuranceRequestViewModel();
-                    var brokers = await _service.GetAllBroker();
-                    var insurance = await _service.GetAllBrokerInsuranceType();
-                    var insuranceTypes = await _service.GetAllbrokerSubInsuranceType();
+                    //  var model = new InsuranceRequestViewModel();
+                    int insuranceTypeId = Convert.ToInt32(item.InsuranceTypeId);
+                    int insuranceSubTypeID = Convert.ToInt32(item.InsuranceSubTypeID);
+                    var brokers = await _service.GetAllBroker( insuranceTypeId,  insuranceSubTypeID);
+                    var insurance = await _service.GetInsuranceType(insuranceTypeId);
+                    
+                   var insuranceTypes = await _service.GetInsuranceSubType(insuranceSubTypeID);
+
+                    
                     var UnderwriterTypes = await _service.GetAllUnderwriter();
                    // var underwritemodels = new List<Underwriters>();
 
@@ -1075,13 +1084,12 @@ namespace InsuranceManagement.Controllers
                         AccountNumber = item.AccountNo,
                         UpdatedPremium = item.UpdatedPremium ,
                         Premium = 0,
-                       
+                       InsuranceType = insurance.Name,
+                       InsuranceSubType = insuranceTypes?.Name,
                         CollateralValue = item.CollateralValue.ToString(),
                         Underwriters = new SelectList(UnderwriterTypes.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Name }), "Value", "Text"),
                         RequestType = getinsurance.RequestType,
                         Brokers = new SelectList(brokers.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.BrokerName }), "Value", "Text"),
-                    InsuranceTypes = new SelectList(insurance.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Broker.BrokerName }), "Value", "Text"),
-                    InsuranceSubTypes = new SelectList(insuranceTypes.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Name }), "Value", "Text"),
 
                 };
 
@@ -1144,7 +1152,7 @@ namespace InsuranceManagement.Controllers
         
         [HttpPost]
         [ShowMessage("ResultMessage")]
-        public async Task<IActionResult> AssignUnderwriter(long requestId, int underwriterId, decimal premium, string comment, string approvalStatus, int InsuranceSubTypeId,int InsuranceTypeId,int BrokerId)
+        public async Task<IActionResult> AssignUnderwriter(long requestId, int underwriterId, decimal premium, string comment, string approvalStatus,int BrokerId)
         {
             GlobalVariables _globalVariables = GetGlobalVariables();
             try
@@ -1157,14 +1165,13 @@ namespace InsuranceManagement.Controllers
                
                 var getInsurance = await _service.GetInsurancereq(requestId.ToString());
                 var getRequest = await _service.Getrequest(requestId.ToString());
-                if(InsuranceTypeId== 0|| BrokerId ==0|| InsuranceSubTypeId ==0)
+                if( BrokerId ==0)
                 {
                     message = "Error: Failed to assign underwriter. Pick all entry";
                     TempData["ResultMessage"] = message;
                     return RedirectToAction(nameof(AssignUnderwriter), new { message = message });
                 }
-                getRequest.InsuranceSubTypeID = InsuranceSubTypeId;
-                getRequest.InsuranceTypeId = InsuranceTypeId;
+                
                 getRequest.BrokerID = BrokerId;
                 //_service.GetInsuranceRequest(id);
                 if (getInsurance.RequestByemail == _globalVariables.Email) return RedirectToAction("Unauthorized"); //return Unauthorized();
@@ -1311,7 +1318,7 @@ namespace InsuranceManagement.Controllers
                             CustomerName = request.CustomerName,
                             T24CustomerID = request.CustomerID,
                             InsuranceSubType = request.InsuranceSubType?.Name,
-                            InsuranceType = request.InsuranceType.InsuranceType.Name,
+                            InsuranceType = request.InsuranceType.Name,
                             Underwrite = request.Underwriter.Name,
                             Upload = "true"
 
@@ -1365,7 +1372,7 @@ namespace InsuranceManagement.Controllers
                     Underwrite = getRequest.Underwriter.Name,
                     IssuanceDate = Convert.ToDateTime(getInsurance.PolicyIssuanceDate),
                     InsuranceSubType = getRequest.InsuranceSubType?.Name,
-                    InsuranceType = getRequest.InsuranceType.InsuranceType.Name,
+                    InsuranceType = getRequest.InsuranceType.Name,
                     CertificateID = CertificateID,
                     PdfFileName = await _service.GetRelativePath(getInsurance.PolicyCertificate, getInsurance.ContentType, getInsurance.FileName),
                     Comment = "",
@@ -1485,7 +1492,13 @@ namespace InsuranceManagement.Controllers
                 if (!_globalVariables.Permissions.Contains(GetPermissionName(Permissions.INR))) return RedirectToAction("Unauthorized");
 
                 var model = new InsuranceRequestViewModel();
-               
+                var insurance = await _service.GetAllInsuranceType();
+               // var insuranceTypes = await _service.GetAllSubInsuranceType();
+
+                model.InsuranceTypes = new SelectList(insurance.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Name }), "Value", "Text");
+               // model.InsuranceSubTypes = new SelectList(insuranceTypes.Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Name }), "Value", "Text");
+
+
                 return View(model);
             }
             catch (Exception ex)
@@ -1563,8 +1576,8 @@ namespace InsuranceManagement.Controllers
                     //InsuranceSubTypeID = model?.InsuranceSubTypeId,
                     //InsuranceTypeId = model.selectedInsuranceTypeId,
                     //BrokerID = model.SelectedBrokerId,
-                    //InsuranceSubTypeID = model?.InsuranceSubTypeId,
-                    //InsuranceTypeId = model.InsuranceTypeId,
+                    InsuranceSubTypeID = model?.InsuranceSubTypeId,
+                    InsuranceTypeId = model.InsuranceTypeId,
                     //BrokerID = model.BrokerId,
                     CustomerEmail = model.CustomerEmail,
                     CollateralValue = Convert.ToDecimal(model.CollateralValue),

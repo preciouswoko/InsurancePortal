@@ -21,10 +21,10 @@ namespace InsuranceManagement.ViewModels
         public string CustomerEmail { get; set; }
         public string AccountNumber { get; set; }
         public decimal? EstimatedPremium { get; set; }
-        //[DisplayName("Insurance Type")]
-        //public string InsuranceType { get; set; }
-        //[DisplayName("Insurance SubType")]
-        //public string InsuranceSubType { get; set; }
+        [DisplayName("Insurance Type")]
+        public string InsuranceType { get; set; }
+        [DisplayName("Insurance SubType")]
+        public string InsuranceSubType { get; set; }
         //[DisplayName("Broker Name")]
         //public string Broker { get; set; }
         public bool IsSelected { get; set; }

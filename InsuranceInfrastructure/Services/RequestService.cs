@@ -28,6 +28,8 @@ namespace InsuranceInfrastructure.Services
         private readonly IGenericRepository<Underwriter> _WriterRepo;
         private readonly IGenericRepository<InsuranceType> _typeRepo;
         private readonly IGenericRepository<InsuranceSubType> _subTypeRepo;
+
+       
         private readonly ISessionService _service;
       // private readonly GlobalVariables _globalVariables;
         private readonly IEmailService _emailService;
@@ -103,7 +105,7 @@ namespace InsuranceInfrastructure.Services
             {
                 IQueryable<Request> baseQuery = _reqRepo.GetBaseQuerywithInclude(r => r.Broker,
                     r => r.Underwriter,
-                    r => r.InsuranceType.InsuranceType,
+                    r => r.InsuranceType,
                     r => r.InsuranceSubType
                     );
 
@@ -172,7 +174,7 @@ namespace InsuranceInfrastructure.Services
                         ContractId = request[item].ContractID,
                         AccountNumber = request[item].AccountNo,
                         AccountName = request[item].AccountName,
-                        InsuranceType = request[item].InsuranceType.InsuranceType.Name,
+                        InsuranceType = request[item].InsuranceType.Name,
                         DebitPassed = insurance.Serial,
                         ContractMaturityDate = request[item].ContractMaturityDate,
                         CustomerName = request[item].CustomerName,
@@ -301,7 +303,7 @@ namespace InsuranceInfrastructure.Services
                 // IQueryable<Request> query = _reqRepo.GetBaseQuery();
                 IQueryable<Request> query = _reqRepo.GetBaseQuerywithInclude(r => r.Broker,
                     r => r.Underwriter,
-                    r => r.InsuranceType.InsuranceType,
+                    r => r.InsuranceType,
                     r => r.InsuranceSubType
                     );
                 return await ProcessInsuranceReport(query, start, limit);
@@ -410,7 +412,7 @@ namespace InsuranceInfrastructure.Services
                 var request = await _reqRepo.GetWithIncludeAsync(
                     x => (x.RequestID == item.RequestID && (x.Status == "Approved" || x.Status == "Active")),
                     x => x.Broker,
-                    x => x.InsuranceType.InsuranceType,
+                    x => x.InsuranceType,
                     x => x.InsuranceSubType,
                     x => x.Underwriter
 
@@ -421,6 +423,7 @@ namespace InsuranceInfrastructure.Services
 
                 }
             }
+
             return requests;
         }
         public async Task<IEnumerable<Request>> GetAllNeeded(string stage)
@@ -434,7 +437,7 @@ namespace InsuranceInfrastructure.Services
                 var request = await _reqRepo.GetWithIncludeAsync(
                     x => (x.RequestID == item.RequestID && /*(x.Status == "Approved" || x.Status == "Active")*//* x.Status == RequestStatus.Approved.ToString()*/ x.Status != CommentStatus.Closed.ToString()),
                     x => x.Broker,
-                    x => x.InsuranceType.InsuranceType,
+                    x => x.InsuranceType,
                     x => x.InsuranceSubType,
                     x => x.Underwriter
                     );
@@ -469,7 +472,7 @@ namespace InsuranceInfrastructure.Services
                 var request = await _reqRepo.GetWithIncludeAsync(
                     x => (x.RequestID == item.RequestID && (x.Status == "Approved" || x.Status == "Active") /*x.Status  == RequestStatus.Approved.ToString()*//*!= CommentStatus.Closed.ToString()*/),
                     x => x.Broker,
-                    x => x.InsuranceType.InsuranceType,
+                    x => x.InsuranceType,
                     x => x.InsuranceSubType,
                     x => x.Underwriter
                     );
@@ -511,9 +514,14 @@ namespace InsuranceInfrastructure.Services
                 // var broker = await _brokerRepo.GetWithPredicate(x => x.Id == getrequest.BrokerID);
 
                 Random random = new Random();
-                var insuranceTypeId = await GetPercentageAsync(getrequest);
+               // decimal perent
+                var insuranceTypeperecentage = await GetPercentageAsync(getrequest.BrokerID, getrequest.InsuranceTypeId);
                 var estimatedPremium = getrequest.UpdatedPremium;
-
+                if (insuranceTypeperecentage == "0")
+                {
+                    return $"UnSuccessful : Create New Broker Insurance Sub Type with broker={getrequest.Broker.BrokerName} and InsuranceType= {getrequest.InsuranceType.Name} to have InsurancesubType of {getrequest.InsuranceSubType.Name}";
+                }
+                decimal insuranceTypeId = Convert.ToDecimal(insuranceTypeperecentage);
                 var commission = Convert.ToDecimal((estimatedPremium * insuranceTypeId) / 100);
                  
                 //string formattedDateTime = DateTime.Now.ToString("yy/MM/dd HHmmss");
@@ -715,19 +723,37 @@ namespace InsuranceInfrastructure.Services
             //return percentage = Convert.ToInt32(getinsurancesubtype.PercentageToBank);
             return 0;
         }
-        public async Task<decimal> GetPercentageAsync(Request request)
-        {
-            decimal percentage;
+        //public async Task<decimal> GetPercentageAsync(Request request)
+        //{
+        //    decimal percentage;
 
-            if (request.InsuranceSubTypeID == null)
+        //    if (request.InsuranceSubTypeID == null)
+        //    {
+        //        //return percentage = Convert.ToInt32(request.InsuranceType.PercentageToBank);
+        //        return 0;
+        //    }
+        //    return percentage = Convert.ToDecimal(request.InsuranceSubType.PercentageToBank);
+
+        //}
+        public async Task<string> GetPercentageAsync(int? brokerID, int? insuranceTypeID)
+        {
+            string percentage = "0";
+            int brokerid = Convert.ToInt16(brokerID);
+            int insuranceType = Convert.ToInt16(insuranceTypeID);
+            var brokerinsuranceType = await _brokerinsuranceTypeRepo.GetWithPredicate(i => i.Status != BrokerStatus.Disable.ToString() && i.Status != BrokerStatus.Inactive.ToString() && i.BrokerId == brokerid && i.InsuranceTypeId == insuranceType);
+            if (brokerinsuranceType != null)
             {
-                //return percentage = Convert.ToInt32(request.InsuranceType.PercentageToBank);
-                return 0;
+                var insuranceTypes = await _brokerinsuranceSubTypeRepo.GetWithPredicate(
+                               i => i.Status != BrokerStatus.Disable.ToString() && i.Status != BrokerStatus.Inactive.ToString() && i.BrokerId == brokerid && i.BrokerInsuranceTypeId == brokerinsuranceType.Id
+                               );
+                if (insuranceTypes != null) {
+                    percentage = insuranceTypes.PercentageToBank.ToString();
+
+                }
             }
-            return percentage = Convert.ToDecimal(request.InsuranceSubType.PercentageToBank);
+            return percentage;
 
         }
-
         public BrokerStatus GetEnumValueByIndex(int index)
         {
             BrokerStatus[] values = (BrokerStatus[])Enum.GetValues(typeof(BrokerStatus));
@@ -797,7 +823,7 @@ namespace InsuranceInfrastructure.Services
             return await _reqRepo.GetWithIncludeAsync(
                       x => (x.RequestID == requestId && (x.Status == "Approved" || x.Status == "Active")/*x.Status == CommentStatus.Approved.ToString()*/ /*!= CommentStatus.Closed.ToString()*/),
                       x => x.Broker,
-                      x => x.InsuranceType.InsuranceType,
+                      x => x.InsuranceType,
                       x => x.InsuranceSubType,
                       x => x.Underwriter
                   );
@@ -808,7 +834,7 @@ namespace InsuranceInfrastructure.Services
             return await _reqRepo.GetWithIncludeAsync(
                       x => (x.RequestID == requestId && x.Status  != CommentStatus.Closed.ToString()),
                       x => x.Broker,
-                      x => x.InsuranceType.InsuranceType,
+                      x => x.InsuranceType,
                       x => x.InsuranceSubType,
                       x => x.Underwriter
                   );
@@ -906,7 +932,7 @@ namespace InsuranceInfrastructure.Services
                         ContractId = request[item].ContractID,
                         AccountNumber = request[item].AccountNo,
                         AccountName = request[item].AccountName,
-                        InsuranceType = request[item].InsuranceType.InsuranceType.Name,
+                        InsuranceType = request[item].InsuranceType.Name,
                         DebitPassed = insurance.Serial,
                         ContractMaturityDate = request[item].ContractMaturityDate,
                         CustomerName = request[item].CustomerName,
@@ -1001,7 +1027,7 @@ namespace InsuranceInfrastructure.Services
                         ContractId = request[item].ContractID,
                         AccountNumber = request[item].AccountNo,
                         AccountName = request[item].AccountName,
-                        InsuranceType = request[item].InsuranceType.InsuranceType.Name,
+                        InsuranceType = request[item].InsuranceType.Name,
                         DebitPassed = insurance.Serial,
                         ContractMaturityDate = request[item].ContractMaturityDate,
                         CustomerName = request[item].CustomerName,
@@ -1105,7 +1131,7 @@ namespace InsuranceInfrastructure.Services
                                 ContractId = request[item].ContractID,
                                 AccountNumber = request[item].AccountNo,
                                 AccountName = request[item].AccountName,
-                                InsuranceType = request[item].InsuranceType.InsuranceType.Name,
+                                InsuranceType = request[item].InsuranceType.Name,
                                 DebitPassed = insurance.Serial,
                                 ContractMaturityDate = request[item].ContractMaturityDate,
                                 CustomerName = request[item].CustomerName,
@@ -1152,7 +1178,7 @@ namespace InsuranceInfrastructure.Services
                             ContractId = request[item].ContractID,
                             AccountNumber = request[item].AccountNo,
                             AccountName = request[item].AccountName,
-                            InsuranceType = request[item].InsuranceType.InsuranceType.Name,
+                            InsuranceType = request[item].InsuranceType.Name,
                             DebitPassed = insurance.Serial,
                             ContractMaturityDate = request[item].ContractMaturityDate,
                             CustomerName = request[item].CustomerName,
@@ -1216,9 +1242,13 @@ namespace InsuranceInfrastructure.Services
                 }
 
                 Random random = new Random();
-                var insuranceTypeId = await GetPercentageAsync(request);
+                var insuranceTypeperecentage = await GetPercentageAsync(request.BrokerID,request.InsuranceTypeId);
                 var estimatedPremium = request.UpdatedPremium;
-
+                if (insuranceTypeperecentage == "0")
+                {
+                    return $"UnSuccessful : Create New Broker Insurance Sub Type with broker={request.Broker.BrokerName} and InsuranceType= {request.InsuranceType.Name} to have InsurancesubType of {request.InsuranceSubType.Name}";
+                }
+                decimal insuranceTypeId = Convert.ToDecimal(insuranceTypeperecentage);
                 // var commission = Convert.ToDecimal((estimatedPremium * insuranceTypeId) / 100);
                 var commission = (Convert.ToDecimal((estimatedPremium * insuranceTypeId) / 100)) / Convert.ToDecimal(_appsettings.VAT);
                 var getserial = await _fundTRepo.GetAllCount(x => x.RequestID == request.RequestID) + 1;

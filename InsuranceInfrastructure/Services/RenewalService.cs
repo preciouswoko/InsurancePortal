@@ -92,11 +92,14 @@ namespace InsuranceInfrastructure.Services
                     var getrequest = await requestRepository.GetWithIncludeAsync(
                    x => (x.RequestID == request.RequestID && x.Status != CommentStatus.Closed.ToString()),
                    x => x.Broker,
-                   x => x.InsuranceType.InsuranceType,
-                   x => x.InsuranceSubType
+                   x => x.InsuranceType,
+                   x => x.InsuranceSubType,
+                   x => x.Broker
                    );
                     Random random = new Random();
-                    var insuranceTypeId = await requestService.GetPercentageAsync(getrequest);
+                    var insuranceTypeperecentage = await requestService.GetPercentageAsync(getrequest.BrokerID, getrequest.InsuranceTypeId);
+                  
+                  decimal  insuranceTypeId = Convert.ToDecimal(insuranceTypeperecentage);
                     var estimatedPremium = getrequest.UpdatedPremium;
 
                     //var commission = (estimatedPremium * insuranceTypeId) / 100;
